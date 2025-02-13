@@ -1,13 +1,13 @@
 #![forbid(unsafe_code)]
 
-mod error;
+mod builds;
 mod cli;
 mod config;
-mod builds;
+mod error;
 
 use anyhow::Result;
-use config::config::Config;
 use builds::builder::Builder;
+use config::config::Config;
 
 fn main() -> Result<()> {
     let params_parser = cli::args_processor::ParamsProcessor::new();

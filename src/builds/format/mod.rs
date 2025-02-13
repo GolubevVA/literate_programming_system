@@ -1,4 +1,5 @@
 #![forbid(unsafe_code)]
 
-pub mod args_processor;
+pub mod module;
+pub mod project;
 pub mod structs;

@@ -12,7 +12,6 @@ pub enum LPError {
     /// Error when source directory does not exist
     #[error("Source directory not found: {0}")]
     SourceDirectoryNotFound(String),
-
     // / Other errors.
     //#[error("{0}")]
     //Other(String),

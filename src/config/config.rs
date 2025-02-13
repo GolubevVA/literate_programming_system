@@ -4,6 +4,7 @@ use std::path::PathBuf;
 
 use super::constants::{CODE_SUBDIR_NAME, DOCS_SUBDIR_NAME};
 
+#[derive(Clone)]
 pub struct Config {
     pub docs_dir: PathBuf,
     pub code_dir: PathBuf,
