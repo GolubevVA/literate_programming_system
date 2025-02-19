@@ -5,7 +5,7 @@ use std::{path::PathBuf, sync::Arc};
 use crate::config::config::Config;
 
 use super::{
-    code::code_builder::CodeBuilder, docs::docs_builder::DocsBuilder, format::structs::Project,
+    code::code_builder::CodeBuilder, docs::docs_builder::DocsBuilder, spec::structs::Project,
 };
 
 pub struct Builder {
@@ -16,14 +16,14 @@ pub struct Builder {
 }
 
 impl Builder {
-    pub fn new(source_dir: PathBuf, config: Config) -> Self {
-        let project = Project::new(&source_dir);
+    pub fn new(config: Config) -> Self {
+        let project = Project::new(&config.source_dir);
         let shared_project = Arc::new(project);
         let code_builder = CodeBuilder::new(config.code_dir.clone(), Arc::clone(&shared_project));
         let docs_builder = DocsBuilder::new(config.docs_dir.clone(), Arc::clone(&shared_project));
 
         Builder {
-            source_dir: source_dir.clone(),
+            source_dir: config.source_dir.clone(),
             config: config.clone(),
             code_builder: code_builder,
             docs_builder: docs_builder,

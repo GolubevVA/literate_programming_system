@@ -2,7 +2,7 @@
 
 use std::{path::PathBuf, sync::Arc};
 
-use crate::builds::format::structs::Project;
+use crate::builds::spec::structs::Project;
 
 pub struct DocsBuilder {
     docs_dir: PathBuf,

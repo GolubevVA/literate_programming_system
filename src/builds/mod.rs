@@ -3,4 +3,4 @@
 pub mod builder;
 pub mod code;
 pub mod docs;
-pub mod format;
+pub mod spec;
