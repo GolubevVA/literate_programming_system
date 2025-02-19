@@ -24,7 +24,10 @@ fn main() -> Result<(), LPError> {
     let config = Config::new(&params.target_dir, &params.src_dir);
 
     let builder = Builder::new(config);
-    builder.build();
+    if let Err(e) = builder.build() {
+        eprintln!("{}", e);
+        process::exit(1);
+    }
 
     Ok(())
 }

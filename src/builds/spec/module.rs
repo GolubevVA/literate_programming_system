@@ -4,7 +4,7 @@ use std::path::Path;
 
 use crate::config::constants::SYSTEM_FILES_EXTENSION;
 
-use super::structs::Module;
+use super::{sections::LiterateFile, structs::Module};
 
 fn clean_path(source_dir: &Path, path: &Path) -> std::path::PathBuf {
     if let Ok(stripped_path) = path.strip_prefix(source_dir) {
@@ -18,7 +18,7 @@ impl Module {
     pub fn new(source_dir: &Path, path: &Path) -> Self {
         if path.extension().and_then(|ext| ext.to_str()) != Some(SYSTEM_FILES_EXTENSION) {
             return Module {
-                sections: Some(Vec::new()),
+                sections: None,
                 path: clean_path(source_dir, path),
             };
         }
@@ -27,24 +27,14 @@ impl Module {
             Ok(content) => content,
             Err(_) => {
                 return Module {
-                    sections: Some(Vec::new()),
-                    path: clean_path(source_dir, path),
-                }
-            }
-        };
-
-        let module: Module = match serde_yaml::from_str(&content) {
-            Ok(module) => module,
-            Err(_) => {
-                return Module {
-                    sections: Some(Vec::new()),
+                    sections: None,
                     path: clean_path(source_dir, path),
                 }
             }
         };
 
         Module {
-            sections: module.sections,
+            sections: Some(LiterateFile::new(&content).sections),
             path: clean_path(source_dir, path),
         }
     }
