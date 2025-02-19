@@ -3,8 +3,10 @@
 use std::{path::PathBuf, sync::Arc};
 
 use crate::{
-    builds::spec::structs::{Project, Section},
-    config::constants::SYSTEM_FILES_EXTENSION,
+    builds::spec::{
+        structs::{Project, Section},
+        utils,
+    },
     error::LPError,
 };
 
@@ -20,20 +22,10 @@ impl CodeBuilder {
         Self { config, project }
     }
 
-    fn prepare_code_file_extension(&self, path: &PathBuf) -> PathBuf {
-        let mut result = path.clone();
-        if let Some(extension) = path.extension() {
-            if extension == SYSTEM_FILES_EXTENSION {
-                result.set_extension("");
-            }
-        }
-        result
-    }
-
     fn prepare_target_path(&self, path: &PathBuf) -> PathBuf {
         let mut result = self.config.target_code_dir.clone();
         result.push(path);
-        self.prepare_code_file_extension(&result)
+        utils::prepare_module_file_extension(&result)
     }
 
     fn get_module_source_path(&self, module: &PathBuf) -> PathBuf {

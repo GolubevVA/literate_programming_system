@@ -6,7 +6,7 @@ use crate::{config::config::Config, error::LPError};
 
 use super::{
     code::{self, code_builder::CodeBuilder},
-    docs::docs_builder::DocsBuilder,
+    docs::{self, docs_builder::DocsBuilder},
     spec::structs::Project,
 };
 
@@ -24,7 +24,10 @@ impl Builder {
             code::config::Config::new(config.code_dir.clone(), config.source_dir.clone()),
             Arc::clone(&shared_project),
         );
-        let docs_builder = DocsBuilder::new(config.docs_dir.clone(), Arc::clone(&shared_project));
+        let docs_builder = DocsBuilder::new(
+            docs::config::Config::new(config.docs_dir.clone(), config.source_dir.clone()),
+            Arc::clone(&shared_project),
+        );
 
         Builder {
             config: config.clone(),
@@ -34,16 +37,16 @@ impl Builder {
     }
 
     fn init(&self) -> Result<(), LPError> {
+        // force check in future
+        let _ = std::fs::remove_dir_all(&self.config.docs_dir);
+        let _ = std::fs::remove_dir_all(&self.config.code_dir);
+
         std::fs::create_dir_all(&self.config.docs_dir).map_err(|e| LPError::Io(e))?;
         std::fs::create_dir_all(&self.config.code_dir).map_err(|e| LPError::Io(e))?;
         Ok(())
     }
 
     pub fn build(&self) -> Result<(), LPError> {
-        println!(
-            "Building from source directory: {:?}",
-            self.config.source_dir
-        );
         println!("Bulding documentation to: {:?}", self.config.docs_dir);
         println!("Bulding code to: {:?}", self.config.code_dir);
 

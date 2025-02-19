@@ -4,7 +4,6 @@ use serde::Deserialize;
 
 use super::structs::Section;
 
-
 #[derive(Debug, Deserialize)]
 pub struct LiterateFile {
     pub sections: Vec<Section>,
