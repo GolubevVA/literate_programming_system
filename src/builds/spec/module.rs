@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-use crate::config::constants::SYSTEM_FILES_EXTENSION;
+use crate::{config::constants::SYSTEM_FILES_EXTENSION, error::LPError};
 
 use super::{sections::LiterateFile, structs::Module};
 
@@ -15,27 +15,32 @@ fn clean_path(source_dir: &Path, path: &Path) -> std::path::PathBuf {
 }
 
 impl Module {
-    pub fn new(source_dir: &Path, path: &Path) -> Self {
+    pub fn new(source_dir: &Path, path: &Path) -> Result<Self, LPError> {
         if path.extension().and_then(|ext| ext.to_str()) != Some(SYSTEM_FILES_EXTENSION) {
-            return Module {
+            return Ok(Module {
                 sections: None,
                 path: clean_path(source_dir, path),
-            };
+            });
         }
 
         let content = match std::fs::read_to_string(&path) {
             Ok(content) => content,
             Err(_) => {
-                return Module {
+                return Ok(Module {
                     sections: None,
                     path: clean_path(source_dir, path),
-                }
+                })
             }
         };
 
-        Module {
-            sections: Some(LiterateFile::new(&content).sections),
+        let literate_file = match LiterateFile::new(&content) {
+            Ok(lf) => lf,
+            Err(e) => return Err(e),
+        };
+
+        Ok(Module {
+            sections: Some(literate_file.sections),
             path: clean_path(source_dir, path),
-        }
+        })
     }
 }

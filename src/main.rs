@@ -23,7 +23,14 @@ fn main() -> Result<(), LPError> {
     let params = params.unwrap();
     let config = Config::new(&params.target_dir, &params.src_dir);
 
-    let builder = Builder::new(config);
+    let builder = match Builder::new(config) {
+        Ok(builder) => builder,
+        Err(e) => {
+            eprintln!("{}", e);
+            process::exit(1);
+        }
+    };
+
     if let Err(e) = builder.build() {
         eprintln!("{}", e);
         process::exit(1);

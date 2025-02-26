@@ -17,8 +17,11 @@ pub struct Builder {
 }
 
 impl Builder {
-    pub fn new(config: Config) -> Self {
-        let project = Project::new(&config.source_dir);
+    pub fn new(config: Config) -> Result<Self, LPError> {
+        let project = match Project::new(&config.source_dir) {
+            Ok(project) => project,
+            Err(e) => return Err(e),
+        };
         let shared_project = Arc::new(project);
         let code_builder = CodeBuilder::new(
             code::config::Config::new(config.code_dir.clone(), config.source_dir.clone()),
@@ -29,11 +32,11 @@ impl Builder {
             Arc::clone(&shared_project),
         );
 
-        Builder {
+        Ok(Builder {
             config: config.clone(),
             code_builder: code_builder,
             docs_builder: docs_builder,
-        }
+        })
     }
 
     fn init(&self) -> Result<(), LPError> {

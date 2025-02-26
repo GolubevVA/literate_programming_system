@@ -12,6 +12,11 @@ pub enum LPError {
     /// Error when source directory does not exist
     #[error("Source directory not found: {0}")]
     SourceDirectoryNotFound(String),
+
+    /// Error when duplicate headers found in a literate file
+    #[error("Duplicate header found: {0}")]
+    DuplicateHeader(String),
+        
     // / Other errors.
     //#[error("{0}")]
     //Other(String),

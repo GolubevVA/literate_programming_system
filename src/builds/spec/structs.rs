@@ -3,12 +3,19 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
-/// Section is the smallest unit of the literate programming system
-/// It's referencable
+/// Section is the smallest unit of the literate programming system.
+/// It's referencable.
+/// 
+/// Header must be a valid markdown header, starting from a few (may be 1) #s.
+/// Only one header per section is allowed
+/// All headers within the same module must be unique.
+/// Header is needed if the section is exported.
+/// if the markdown conatins more than one header, only the one on the first line is considered.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Section {
     pub code: String,
     pub docs: String,
+    pub header: Option<String>
 }
 
 /// A file is a module, each module has sections if it's a literate programming file
