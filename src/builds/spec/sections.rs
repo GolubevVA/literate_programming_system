@@ -103,6 +103,10 @@ impl LiterateFile {
                 references: refs
             };
 
+            for sec_ref in &section.references {
+                println!("{} -> {:?} and {}", section.get_header().unwrap(), sec_ref.path, sec_ref.header);
+            }
+
             let header = section.get_header();
 
             sections.push(section);

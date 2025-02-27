@@ -8,6 +8,9 @@ use serde::{Deserialize, Serialize};
 pub struct Reference {
     /// not the whole path, just what comes after the source directory
     /// so, it's relative
+    /// it does not inlude the file extension
+    /// 
+    /// e.g. if the original path is `src/file.py.lpnb` then this would be `file`
     pub path: PathBuf,
     pub header: String
 }
@@ -31,6 +34,9 @@ pub struct Section {
 /// A file is a module, each module has sections if it's a literate programming file
 /// If it's not a literate programming file, it has only a path.
 /// It's referencable
+/// 
+/// All the modules paths should be unique within the project, even if their extensions differ.
+/// E.g. `main.py.lpnb`` can not coexist with `main.cpp.lpnb``
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Module {
     /// not whole paths, just what comes after the source directory

@@ -10,6 +10,7 @@ use super::structs::{Module, Project};
 
 impl Project {
     pub fn new(source_dir: &Path) -> Result<Self, LPError> {
+        // todo: add checks that modules paths are unique
         let modules = WalkDir::new(source_dir)
             .into_iter()
             .filter_map(|entry| entry.ok())
