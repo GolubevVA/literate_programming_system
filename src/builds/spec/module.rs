@@ -14,6 +14,7 @@ fn clean_path(source_dir: &Path, path: &Path) -> std::path::PathBuf {
     }
 }
 
+/// iterator through all the sections is needed
 impl Module {
     pub fn new(source_dir: &Path, path: &Path) -> Result<Self, LPError> {
         if path.extension().and_then(|ext| ext.to_str()) != Some(SYSTEM_FILES_EXTENSION) {

@@ -1,10 +1,11 @@
 #![forbid(unsafe_code)]
 
+use pulldown_cmark::{Parser, Event, Tag};
 use serde::{Deserialize, Serialize};
 
 use crate::error::LPError;
 
-use super::structs::Section;
+use super::structs::{Reference, Section};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct RawSection {
@@ -13,6 +14,7 @@ struct RawSection {
 }
 
 impl RawSection {
+    /// returns raw header, with `#` symbols
     pub fn get_header(&self) -> Option<String> {
         let lines: Vec<&str> = self.docs.lines().collect();
         if lines.is_empty() {
@@ -23,6 +25,37 @@ impl RawSection {
             return None;
         }
         Some(first_line.to_string())
+    }
+
+    /// returns a list of references to other sections
+    pub fn get_references(&self) -> Vec<Reference> {
+        let parser = Parser::new(&self.docs);
+        let mut references = Vec::new();
+        
+        for event in parser {
+            if let Event::Start(Tag::Link(_, dest, _)) = event {
+                let dest_str = dest.into_string();
+                
+                let path;
+                let header;
+                
+                if let Some(hash_pos) = dest_str.find('#') {
+                    path = dest_str[..hash_pos].to_string();
+                    header = dest_str[hash_pos+1..].to_string();
+                } else {
+                    continue;
+                }
+                
+                if !path.is_empty() || !header.is_empty() {
+                    references.push(Reference {
+                        path: path.into(),
+                        header,
+                    });
+                }
+            }
+        }
+        
+        references
     }
 }
 
@@ -61,11 +94,13 @@ impl LiterateFile {
         
         for raw_section in raw_lit_file.sections {
             let header = raw_section.get_header();
+            let refs = raw_section.get_references();
 
             let section = Section {
                 code: raw_section.code,
                 docs: raw_section.docs,
                 header: header,
+                references: refs
             };
 
             let header = section.get_header();
@@ -78,6 +113,8 @@ impl LiterateFile {
                 }
             }
         }
+
+        // references validation needed now
         
         Ok(LiterateFile { sections })
     }
