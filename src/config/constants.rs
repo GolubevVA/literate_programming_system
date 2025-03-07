@@ -5,5 +5,6 @@ pub const DEFAULT_TARGETS_DIR_NAME: &str = "targets";
 
 pub const DOCS_SUBDIR_NAME: &str = "docs";
 pub const CODE_SUBDIR_NAME: &str = "code";
+pub const CODE_PLUGINS_DIR_NAME: &str = "plugins";
 
 pub const SYSTEM_FILES_EXTENSION: &str = "lpnb";

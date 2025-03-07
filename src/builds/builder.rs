@@ -24,9 +24,13 @@ impl Builder {
         };
         let shared_project = Arc::new(project);
         let code_builder = CodeBuilder::new(
-            code::config::Config::new(config.code_dir.clone(), config.source_dir.clone()),
+            code::config::Config::new(
+                config.code_dir.clone(),
+                config.source_dir.clone(),
+                config.code_plugins_dir.clone(),
+            ),
             Arc::clone(&shared_project),
-        );
+        )?;
         let docs_builder = DocsBuilder::new(
             docs::config::Config::new(config.docs_dir.clone(), config.source_dir.clone()),
             Arc::clone(&shared_project),

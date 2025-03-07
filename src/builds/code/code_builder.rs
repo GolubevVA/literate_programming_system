@@ -2,6 +2,8 @@
 
 use std::{path::PathBuf, sync::Arc};
 
+use mlua::Lua;
+
 use crate::{
     builds::spec::{
         structs::{Project, Section},
@@ -10,16 +12,24 @@ use crate::{
     error::LPError,
 };
 
-use super::config::Config;
+use super::{config::Config, plugins::caller::PluginsCaller};
 
 pub struct CodeBuilder {
     config: Config,
     project: Arc<Project>,
+    // TODO: it should be used to call plugins to add import statements for references
+    plugins_caller: Arc<PluginsCaller>,
 }
 
 impl CodeBuilder {
-    pub fn new(config: Config, project: Arc<Project>) -> Self {
-        Self { config, project }
+    pub fn new(config: Config, project: Arc<Project>) -> Result<Self, LPError> {
+        let lua = Arc::new(Lua::new());
+        let plugins_caller = Arc::new(PluginsCaller::new(lua, &config.plugins_dir)?);
+        Ok(Self {
+            config,
+            project,
+            plugins_caller,
+        })
     }
 
     fn prepare_target_path(&self, path: &PathBuf) -> PathBuf {

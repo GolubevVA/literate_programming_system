@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use pulldown_cmark::{Parser, Event, Tag};
+use pulldown_cmark::{Event, Parser, Tag};
 use serde::{Deserialize, Serialize};
 
 use crate::error::LPError;
@@ -31,21 +31,21 @@ impl RawSection {
     pub fn get_references(&self) -> Vec<Reference> {
         let parser = Parser::new(&self.docs);
         let mut references = Vec::new();
-        
+
         for event in parser {
             if let Event::Start(Tag::Link(_, dest, _)) = event {
                 let dest_str = dest.into_string();
-                
+
                 let path;
                 let header;
-                
+
                 if let Some(hash_pos) = dest_str.find('#') {
                     path = dest_str[..hash_pos].to_string();
-                    header = dest_str[hash_pos+1..].to_string();
+                    header = dest_str[hash_pos + 1..].to_string();
                 } else {
                     continue;
                 }
-                
+
                 if !path.is_empty() || !header.is_empty() {
                     references.push(Reference {
                         path: path.into(),
@@ -54,7 +54,7 @@ impl RawSection {
                 }
             }
         }
-        
+
         references
     }
 }
@@ -65,7 +65,13 @@ impl Section {
         if self.header.is_none() {
             return None;
         }
-        Some(self.header.as_ref().unwrap().trim_matches(|c| c == '#' || c == ' ').to_string())
+        Some(
+            self.header
+                .as_ref()
+                .unwrap()
+                .trim_matches(|c| c == '#' || c == ' ')
+                .to_string(),
+        )
     }
 }
 
@@ -88,10 +94,10 @@ impl RawLiterateFile {
 impl LiterateFile {
     pub fn new(content: &str) -> Result<Self, LPError> {
         let raw_lit_file = RawLiterateFile::new(content);
-        
+
         let mut sections = Vec::new();
         let mut seen_headers = std::collections::HashSet::new();
-        
+
         for raw_section in raw_lit_file.sections {
             let header = raw_section.get_header();
             let refs = raw_section.get_references();
@@ -100,17 +106,22 @@ impl LiterateFile {
                 code: raw_section.code,
                 docs: raw_section.docs,
                 header: header,
-                references: refs
+                references: refs,
             };
 
             for sec_ref in &section.references {
-                println!("{} -> {:?} and {}", section.get_header().unwrap(), sec_ref.path, sec_ref.header);
+                println!(
+                    "{} -> {:?} and {}",
+                    section.get_header().unwrap(),
+                    sec_ref.path,
+                    sec_ref.header
+                );
             }
 
             let header = section.get_header();
 
             sections.push(section);
-            
+
             if let Some(ref h) = header {
                 if !seen_headers.insert(h.clone()) {
                     return Err(LPError::DuplicateHeader(h.clone()));
@@ -119,7 +130,7 @@ impl LiterateFile {
         }
 
         // references validation needed now
-        
+
         Ok(LiterateFile { sections })
     }
 }
