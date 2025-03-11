@@ -62,6 +62,7 @@ impl PluginsCaller {
     ///
     /// `current_path` - path to the file to which an import statement should be added
     /// `referenced_path` - path to the file, the code from which should be imported
+    /// Both of them should have the same extension
     /// `code_block` - the code block that should be imported
     pub fn call_plugin_func(
         &self,

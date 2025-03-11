@@ -7,6 +7,7 @@ use crate::{config::config::Config, error::LPError};
 use super::{
     code::{self, code_builder::CodeBuilder},
     docs::{self, docs_builder::DocsBuilder},
+    index::ProjectIndex,
     spec::structs::Project,
 };
 
@@ -23,6 +24,7 @@ impl Builder {
             Err(e) => return Err(e),
         };
         let shared_project = Arc::new(project);
+        let index = ProjectIndex::new(shared_project.clone());
         let code_builder = CodeBuilder::new(
             code::config::Config::new(
                 config.code_dir.clone(),
@@ -30,6 +32,7 @@ impl Builder {
                 config.code_plugins_dir.clone(),
             ),
             Arc::clone(&shared_project),
+            Arc::new(index),
         )?;
         let docs_builder = DocsBuilder::new(
             docs::config::Config::new(config.docs_dir.clone(), config.source_dir.clone()),

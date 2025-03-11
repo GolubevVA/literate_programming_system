@@ -49,7 +49,7 @@ impl DocsBuilder {
         result
     }
 
-    fn prepare_final_docs(&self, sections: &[Section], extension: &str) -> String {
+    fn prepare_final_docs(&self, sections: &[Arc<Section>], extension: &str) -> String {
         sections
             .iter()
             .map(|s| format!("{}\n```{}\n{}\n```", s.docs, extension, s.code))

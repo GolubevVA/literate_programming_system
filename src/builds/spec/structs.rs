@@ -1,5 +1,5 @@
 #![forbid(unsafe_code)]
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
 use serde::{Deserialize, Serialize};
 
@@ -12,6 +12,11 @@ pub struct Reference {
     ///
     /// e.g. if the original path is `src/file.py.lpnb` then this would be `file`
     pub path: PathBuf,
+
+    /// The header of the section, without the #s and the leading spaces.
+    /// As well, it's a real header, in it's original form.
+    /// 
+    /// E.g. if the header is `## Some header` then this would be `Some header`, not `## Some header` or `Some-header`
     pub header: String,
 }
 
@@ -42,9 +47,9 @@ pub struct Module {
     /// not whole paths, just what comes after the source directory
     pub path: PathBuf,
 
-    pub sections: Option<Vec<Section>>,
+    pub sections: Option<Vec<Arc<Section>>>,
 }
 
 pub struct Project {
-    pub modules: Vec<Module>,
+    pub modules: Vec<Arc<Module>>,
 }

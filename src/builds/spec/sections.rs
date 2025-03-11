@@ -7,6 +7,16 @@ use crate::error::LPError;
 
 use super::structs::{Reference, Section};
 
+/// Convert a header text to its anchor representation
+/// 1. Trim whitespace
+/// 2. Replace spaces with hyphens
+/// For example: "My Header" -> "my-header"
+pub fn header_to_anchor(header: &str) -> String {
+    header
+        .trim()
+        .replace(' ', "-")
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 struct RawSection {
     code: String,
@@ -49,6 +59,7 @@ impl RawSection {
                 if !path.is_empty() || !header.is_empty() {
                     references.push(Reference {
                         path: path.into(),
+                        // header: header_to_anchor(&header),
                         header,
                     });
                 }
@@ -60,18 +71,19 @@ impl RawSection {
 }
 
 impl Section {
-    /// returns referencable section's header if exists
+    /// returns referencable section's header if exists, formatted as an anchor
     pub fn get_header(&self) -> Option<String> {
         if self.header.is_none() {
             return None;
         }
-        Some(
-            self.header
-                .as_ref()
-                .unwrap()
-                .trim_matches(|c| c == '#' || c == ' ')
-                .to_string(),
-        )
+        
+        let header_text = self.header
+            .as_ref()
+            .unwrap()
+            .trim_start_matches(|c| c == '#')
+            .trim();
+
+        Some(header_to_anchor(header_text))
     }
 }
 
@@ -105,7 +117,7 @@ impl LiterateFile {
             let section = Section {
                 code: raw_section.code,
                 docs: raw_section.docs,
-                header: header,
+                header,
                 references: refs,
             };
 
@@ -118,11 +130,11 @@ impl LiterateFile {
                 );
             }
 
-            let header = section.get_header();
+            let section_header = section.get_header();
 
             sections.push(section);
 
-            if let Some(ref h) = header {
+            if let Some(ref h) = section_header {
                 if !seen_headers.insert(h.clone()) {
                     return Err(LPError::DuplicateHeader(h.clone()));
                 }

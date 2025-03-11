@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 use std::path::Path;
+use std::sync::Arc;
 
 use walkdir::WalkDir;
 
@@ -10,12 +11,11 @@ use super::structs::{Module, Project};
 
 impl Project {
     pub fn new(source_dir: &Path) -> Result<Self, LPError> {
-        // todo: add checks that modules paths are unique
         let modules = WalkDir::new(source_dir)
             .into_iter()
             .filter_map(|entry| entry.ok())
             .filter(|entry| entry.file_type().is_file())
-            .map(|entry| Module::new(source_dir, entry.path()))
+            .map(|entry| Module::new(source_dir, entry.path()).map(Arc::new))
             .collect::<Result<Vec<_>, _>>()?;
 
         Ok(Project { modules })

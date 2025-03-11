@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 use std::path::Path;
+use std::sync::Arc;
 
 use crate::{config::constants::SYSTEM_FILES_EXTENSION, error::LPError};
 
@@ -14,7 +15,6 @@ fn clean_path(source_dir: &Path, path: &Path) -> std::path::PathBuf {
     }
 }
 
-/// iterator through all the sections is needed
 impl Module {
     pub fn new(source_dir: &Path, path: &Path) -> Result<Self, LPError> {
         if path.extension().and_then(|ext| ext.to_str()) != Some(SYSTEM_FILES_EXTENSION) {
@@ -38,9 +38,8 @@ impl Module {
             Ok(lf) => lf,
             Err(e) => return Err(e),
         };
-
         Ok(Module {
-            sections: Some(literate_file.sections),
+            sections: Some(literate_file.sections.into_iter().map(Arc::new).collect()),
             path: clean_path(source_dir, path),
         })
     }
