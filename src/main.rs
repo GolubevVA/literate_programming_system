@@ -9,7 +9,7 @@ use builds::builder::Builder;
 use cli::args_processor::ParamsProcessor;
 use config::config::Config;
 use error::LPError;
-use std::process;
+use std::{process, sync::Arc};
 
 fn main() -> Result<(), LPError> {
     let params_parser = ParamsProcessor::new();
@@ -21,9 +21,11 @@ fn main() -> Result<(), LPError> {
     }
 
     let params = params.unwrap();
-    let config = Config::new(&params.target_dir, &params.src_dir);
+    let config = Config::new(&params.target_dir, &params.src_dir, &params.plugins_dir);
 
-    let builder = match Builder::new(config) {
+    let lua = Arc::new(mlua::Lua::new());
+
+    let builder = match Builder::new(config, lua.clone()) {
         Ok(builder) => builder,
         Err(e) => {
             eprintln!("{}", e);

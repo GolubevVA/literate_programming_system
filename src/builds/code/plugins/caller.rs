@@ -46,7 +46,10 @@ impl PluginsCaller {
                             .to_string_lossy()
                             .to_string();
 
+                        println!("Loading plugin: {}", filename);
+
                         let plugin_func = get_plugin_func(&lua, &path, PLUGIN_FUNC_NAME)?;
+
                         plugin_functions.insert(filename, plugin_func);
                     }
                 }

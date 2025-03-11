@@ -21,7 +21,7 @@ pub struct CodeBuilder {
     config: Config,
     project: Arc<Project>,
     plugins_caller: Arc<PluginsCaller>,
-    index: Arc<ProjectIndex>,
+    index: Arc<ProjectIndex>
 }
 
 impl CodeBuilder {
@@ -29,9 +29,9 @@ impl CodeBuilder {
         config: Config,
         project: Arc<Project>,
         index: Arc<ProjectIndex>,
+        lua: Arc<Lua>,
     ) -> Result<Self, LPError> {
-        let lua = Arc::new(Lua::new());
-        let plugins_caller = Arc::new(PluginsCaller::new(lua, &config.plugins_dir)?);
+        let plugins_caller = Arc::new(PluginsCaller::new(lua.clone(), &config.plugins_dir)?);
         Ok(Self {
             config,
             project,

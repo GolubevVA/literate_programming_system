@@ -2,6 +2,8 @@
 
 use std::sync::Arc;
 
+use mlua::Lua;
+
 use crate::{config::config::Config, error::LPError};
 
 use super::{
@@ -18,7 +20,7 @@ pub struct Builder {
 }
 
 impl Builder {
-    pub fn new(config: Config) -> Result<Self, LPError> {
+    pub fn new(config: Config, lua: Arc<Lua>) -> Result<Self, LPError> {
         let project = match Project::new(&config.source_dir) {
             Ok(project) => project,
             Err(e) => return Err(e),
@@ -33,6 +35,7 @@ impl Builder {
             ),
             Arc::clone(&shared_project),
             Arc::new(index),
+            lua,
         )?;
         let docs_builder = DocsBuilder::new(
             docs::config::Config::new(config.docs_dir.clone(), config.source_dir.clone()),

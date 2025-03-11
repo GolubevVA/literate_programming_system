@@ -14,7 +14,7 @@ impl Config {
         Config {
             target_code_dir,
             source_dir,
-            plugins_dir: plugins_dir,
+            plugins_dir,
         }
     }
 }
