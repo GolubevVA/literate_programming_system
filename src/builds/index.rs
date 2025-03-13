@@ -46,16 +46,16 @@ impl ProjectIndex {
         }
     }
 
-    // The path is treated as a module path without any extension
-    //
-    // e.g. cmd/api/main, but not ~/projects/my-project/cmd/api/main.rs.lpnb
+    /// The path is treated as a module path without any extension
+    ///
+    /// e.g. cmd/api/main, but not ~/projects/my-project/cmd/api/main.rs.lpnb
     // pub fn get_module(&self, path: &PathBuf) -> Option<&Arc<Module>> {
     //     self.modules.get(path)
     // }
 
-    // The path is treated as a module path without any extension
-    //
-    // e.g. cmd/api/main, but not ~/projects/my-project/cmd/api/main.rs.lpnb
+    /// The path is treated as a module path without any extension
+    ///
+    /// e.g. cmd/api/main, but not ~/projects/my-project/cmd/api/main.rs.lpnb
     pub fn get_section(&self, path: &PathBuf, header: &str) -> Option<&Arc<Section>> {
         self.sections.get(path)?.get(header)
     }

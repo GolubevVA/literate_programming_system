@@ -4,7 +4,9 @@
 use clap::Parser;
 use std::path::PathBuf;
 
-use crate::config::constants::{DEFAULT_SOURCE_DIR_NAME, DEFAULT_TARGETS_DIR_NAME, DEFAULT_PLUGINS_DIR_NAME};
+use crate::config::constants::{
+    DEFAULT_PLUGINS_DIR_NAME, DEFAULT_SOURCE_DIR_NAME, DEFAULT_TARGETS_DIR_NAME,
+};
 
 /// CLI arguments
 #[derive(Parser, Debug)]

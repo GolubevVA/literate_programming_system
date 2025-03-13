@@ -15,7 +15,7 @@ pub struct Reference {
 
     /// The header of the section, without the #s and the leading spaces.
     /// As well, it's a real header, in it's original form.
-    /// 
+    ///
     /// E.g. if the header is `## Some header` then this would be `Some header`, not `## Some header` or `Some-header`
     pub header: String,
 }

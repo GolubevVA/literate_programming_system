@@ -21,7 +21,7 @@ pub struct CodeBuilder {
     config: Config,
     project: Arc<Project>,
     plugins_caller: Arc<PluginsCaller>,
-    index: Arc<ProjectIndex>
+    index: Arc<ProjectIndex>,
 }
 
 impl CodeBuilder {
@@ -68,7 +68,11 @@ impl CodeBuilder {
     fn get_all_imports(&self, module: Arc<Module>) -> Result<String, LPError> {
         let mut imports: Vec<String> = vec![];
         let current_path = utils::prepare_module_file_extension(&module.path);
-        let current_extension = current_path.extension().unwrap_or(std::ffi::OsStr::new("")).to_str().unwrap();
+        let current_extension = current_path
+            .extension()
+            .unwrap_or(std::ffi::OsStr::new(""))
+            .to_str()
+            .unwrap();
         for section in module.sections.as_ref().unwrap() {
             for reference in &section.references {
                 let reference_path = reference.path.clone();

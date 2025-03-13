@@ -12,9 +12,7 @@ use super::structs::{Reference, Section};
 /// 2. Replace spaces with hyphens
 /// For example: "My Header" -> "my-header"
 pub fn header_to_anchor(header: &str) -> String {
-    header
-        .trim()
-        .replace(' ', "-")
+    header.trim().replace(' ', "-")
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -76,8 +74,9 @@ impl Section {
         if self.header.is_none() {
             return None;
         }
-        
-        let header_text = self.header
+
+        let header_text = self
+            .header
             .as_ref()
             .unwrap()
             .trim_start_matches(|c| c == '#')
