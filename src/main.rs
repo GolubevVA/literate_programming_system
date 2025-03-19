@@ -21,7 +21,12 @@ fn main() -> Result<(), LPError> {
     }
 
     let params = params.unwrap();
-    let config = Config::new(&params.target_dir, &params.src_dir, &params.plugins_dir);
+    let config = Config::new(
+        &params.target_dir,
+        &params.src_dir,
+        &params.plugins_dir,
+        params.force,
+    );
 
     let lua = Arc::new(mlua::Lua::new());
 

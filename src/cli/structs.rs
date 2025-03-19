@@ -19,14 +19,19 @@ use crate::config::constants::{
 #[clap(version)]
 pub struct Params {
     /// Source directory [default: DEFAULT_SOURCE_DIR_NAME]
-    #[clap(long, default_value = DEFAULT_SOURCE_DIR_NAME)]
+    #[clap(short='s', long, default_value = DEFAULT_SOURCE_DIR_NAME)]
     pub src_dir: PathBuf,
 
     /// Target directory [default: DEFAULT_TARGETS_DIR_NAME]
-    #[clap(long, default_value = DEFAULT_TARGETS_DIR_NAME)]
+    #[clap(short='t', long, default_value = DEFAULT_TARGETS_DIR_NAME)]
     pub target_dir: PathBuf,
 
     /// Plugins directory [default: DEFAULT_PLUGINS_DIR_NAME]
-    #[clap(long, default_value = DEFAULT_PLUGINS_DIR_NAME)]
+    #[clap(short='p', long, default_value = DEFAULT_PLUGINS_DIR_NAME)]
     pub plugins_dir: PathBuf,
+
+    /// Clear the target directories before building.
+    /// If not enabled, then existing files will be overwritten only if the same file appears after the build process.
+    #[clap(short = 'f', long)]
+    pub force: bool,
 }

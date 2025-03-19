@@ -6,11 +6,10 @@ use serde::{Deserialize, Serialize};
 /// A reference to another literate notebook's section from the same project
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Reference {
-    /// not the whole path, just what comes after the source directory
-    /// so, it's relative
-    /// it does not inlude the file extension
+    /// Not the whole path, just what comes after the source directory. So, it's relative.
+    /// It does not inlude the file extension.
     ///
-    /// e.g. if the original path is `src/file.py.lpnb` then this would be `file`
+    /// e.g. if the original path is `src/file.py.lpnb` then it would be `file`
     pub path: PathBuf,
 
     /// The header of the section, without the #s and the leading spaces.
@@ -24,10 +23,10 @@ pub struct Reference {
 /// It's referencable.
 ///
 /// Header must be a valid markdown header, starting from a few (may be 1) #s.
-/// Only one header per section is allowed
+/// Only one header per section is allowed.
 /// All headers within the same module must be unique.
 /// Header is needed if the section is exported.
-/// if the markdown conatins more than one header, only the one on the first line is considered.
+/// If the markdown contains more than one header, only the one on the first line is considered.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Section {
     pub code: String,
@@ -36,15 +35,14 @@ pub struct Section {
     pub references: Vec<Reference>,
 }
 
-/// A file is a module, each module has sections if it's a literate programming file
+/// A file is a module, each module has sections if it's a literate programming file.
 /// If it's not a literate programming file, it has only a path.
-/// It's referencable
 ///
 /// All the modules paths should be unique within the project, even if their extensions differ.
-/// E.g. `main.py.lpnb`` can not coexist with `main.cpp.lpnb``
+/// E.g. `main.py.lpnb`` can not coexist with `main.cpp.lpnb`
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Module {
-    /// not whole paths, just what comes after the source directory
+    /// Not whole paths, just what comes after the source directory.
     pub path: PathBuf,
 
     pub sections: Option<Vec<Arc<Section>>>,

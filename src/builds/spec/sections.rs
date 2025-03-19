@@ -10,6 +10,7 @@ use super::structs::{Reference, Section};
 /// Convert a header text to its anchor representation
 /// 1. Trim whitespace
 /// 2. Replace spaces with hyphens
+///
 /// For example: "My Header" -> "my-header"
 pub fn header_to_anchor(header: &str) -> String {
     header.trim().replace(' ', "-")
@@ -57,7 +58,6 @@ impl RawSection {
                 if !path.is_empty() || !header.is_empty() {
                     references.push(Reference {
                         path: path.into(),
-                        // header: header_to_anchor(&header),
                         header,
                     });
                 }

@@ -25,7 +25,7 @@ impl DocsBuilder {
         Self { config, project }
     }
 
-    // returns target path and an original extension, "" if no extension
+    /// returns target path and an original extension, "" if no extension
     fn prepare_target_path(&self, path: &PathBuf) -> (PathBuf, String) {
         let mut result = self.config.target_docs_dir.clone();
         result.push(path);
@@ -61,24 +61,16 @@ impl DocsBuilder {
         for module in &self.project.modules {
             let source_path = self.get_module_source_path(&module.path);
             let (target_path, extension) = self.prepare_target_path(&module.path);
-            println!(
-                "Building docs for source: {:?} and target: {:?}",
-                source_path, target_path
-            );
             if let Some(parent) = target_path.parent() {
-                println!("Creating parent dir: {:?}", parent);
                 std::fs::create_dir_all(parent).map_err(|e| LPError::Io(e))?;
             }
             if let Some(sections) = &module.sections {
-                println!("Writing docs to: {:?}", target_path);
-                // temporarily. May be config based in future
                 std::fs::write(
                     target_path,
                     self.prepare_final_docs(sections, extension.as_str()),
                 )
                 .map_err(|e| LPError::Io(e))?;
             } else {
-                println!("Copying source to target: {:?}", target_path);
                 std::fs::copy(source_path, target_path).map_err(|e| LPError::Io(e))?;
             }
         }

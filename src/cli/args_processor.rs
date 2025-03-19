@@ -22,7 +22,6 @@ impl ParamsProcessor {
                 params.src_dir.to_string_lossy().to_string(),
             ));
         }
-        // may add checks with force flag and target already exists
         None
     }
 

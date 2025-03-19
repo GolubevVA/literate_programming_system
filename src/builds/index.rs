@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use crate::builds::spec::structs::{/*Module,*/ Section};
+use crate::builds::spec::structs::Section;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -10,20 +10,17 @@ use super::spec::utils;
 
 pub struct ProjectIndex {
     sections: HashMap<PathBuf, HashMap<String, Arc<Section>>>,
-    // modules: HashMap<PathBuf, Arc<Module>>,
 }
 
 impl ProjectIndex {
     pub fn new(project: Arc<Project>) -> ProjectIndex {
         let mut sections = HashMap::new();
-        // let mut modules = HashMap::new();
 
         for module in project.modules.iter() {
             let mut path = utils::prepare_module_file_extension(&module.path);
             if path.extension().is_some() {
                 path.set_extension("");
             }
-            // modules.insert(path.clone(), module.clone());
 
             if let Some(module_sections) = &module.sections {
                 let mut header_map = HashMap::new();
@@ -41,17 +38,8 @@ impl ProjectIndex {
             }
         }
 
-        ProjectIndex {
-            sections, /* , modules*/
-        }
+        ProjectIndex { sections }
     }
-
-    /// The path is treated as a module path without any extension
-    ///
-    /// e.g. cmd/api/main, but not ~/projects/my-project/cmd/api/main.rs.lpnb
-    // pub fn get_module(&self, path: &PathBuf) -> Option<&Arc<Module>> {
-    //     self.modules.get(path)
-    // }
 
     /// The path is treated as a module path without any extension
     ///

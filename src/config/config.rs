@@ -10,15 +10,23 @@ pub struct Config {
     pub code_dir: PathBuf,
     pub code_plugins_dir: PathBuf,
     pub source_dir: PathBuf,
+    /// clear the target directory before building
+    pub force: bool,
 }
 
 impl Config {
-    pub fn new(target_dir: &PathBuf, source_dir: &PathBuf, code_plugins_dir: &PathBuf) -> Self {
+    pub fn new(
+        target_dir: &PathBuf,
+        source_dir: &PathBuf,
+        code_plugins_dir: &PathBuf,
+        force: bool,
+    ) -> Self {
         Config {
             docs_dir: target_dir.join(DOCS_SUBDIR_NAME),
             code_dir: target_dir.join(CODE_SUBDIR_NAME),
             code_plugins_dir: code_plugins_dir.to_path_buf(),
             source_dir: source_dir.clone(),
+            force,
         }
     }
 }

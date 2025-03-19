@@ -50,23 +50,26 @@ impl Builder {
     }
 
     fn init(&self) -> Result<(), LPError> {
-        // force check in future
-        let _ = std::fs::remove_dir_all(&self.config.docs_dir);
-        let _ = std::fs::remove_dir_all(&self.config.code_dir);
+        if self.config.force {
+            std::fs::remove_dir_all(&self.config.docs_dir)?;
+            std::fs::remove_dir_all(&self.config.code_dir)?;
+        }
 
-        std::fs::create_dir_all(&self.config.docs_dir).map_err(|e| LPError::Io(e))?;
-        std::fs::create_dir_all(&self.config.code_dir).map_err(|e| LPError::Io(e))?;
+        std::fs::create_dir_all(&self.config.docs_dir)?;
+        std::fs::create_dir_all(&self.config.code_dir)?;
+
         Ok(())
     }
 
     pub fn build(&self) -> Result<(), LPError> {
-        println!("Bulding documentation to: {:?}", self.config.docs_dir);
-        println!("Bulding code to: {:?}", self.config.code_dir);
-
         self.init()?;
 
+        println!("Bulding code to: {:?}", self.config.code_dir);
         self.code_builder.build()?;
+
+        println!("Bulding documentation to: {:?}", self.config.docs_dir);
         self.docs_builder.build()?;
+
         Ok(())
     }
 }

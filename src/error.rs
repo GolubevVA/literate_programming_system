@@ -28,7 +28,4 @@ pub enum LPError {
     /// Lua runtime errors.
     #[error("Lua error: {0}")]
     LuaRuntime(String),
-    // / Other errors.
-    //#[error("{0}")]
-    //Other(String),
 }

@@ -8,7 +8,7 @@ use crate::{
     builds::{
         index::ProjectIndex,
         spec::{
-            structs::{Module, Project /*, Section*/},
+            structs::{Module, Project},
             utils,
         },
     },
