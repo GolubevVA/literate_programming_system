@@ -7,16 +7,8 @@ use path_clean::clean;
 
 use crate::{config::constants::SYSTEM_FILES_EXTENSION, error::LPError};
 
+use super::utils::clean_path;
 use super::{sections::LiterateFile, structs::Module};
-
-/// eliminate's the directory prefix from the path
-fn clean_path(source_dir: &Path, path: &Path) -> std::path::PathBuf {
-    if let Ok(stripped_path) = path.strip_prefix(source_dir) {
-        stripped_path.to_path_buf()
-    } else {
-        path.to_path_buf()
-    }
-}
 
 impl Module {
     pub fn new(source_dir: &Path, path: &Path) -> Result<Self, LPError> {

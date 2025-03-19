@@ -5,16 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::LPError;
 
-use super::structs::{Reference, Section};
-
-/// Convert a header text to its anchor representation
-/// 1. Trim whitespace
-/// 2. Replace spaces with hyphens
-///
-/// For example: "My Header" -> "my-header"
-pub fn header_to_anchor(header: &str) -> String {
-    header.trim().replace(' ', "-")
-}
+use super::{structs::{Reference, Section}, utils::header_to_anchor};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct RawSection {

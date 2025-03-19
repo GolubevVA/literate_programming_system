@@ -50,6 +50,8 @@ pub struct Module {
     pub sections: Option<Vec<Arc<Section>>>,
 }
 
+/// A project is a collection of modules.
+/// It's the main entity of the literate programming system.
 pub struct Project {
     pub modules: Vec<Arc<Module>>,
 }
