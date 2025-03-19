@@ -15,12 +15,14 @@ use crate::{
     error::LPError,
 };
 
+/// DocsBuilder is a struct that is responsible for building the documentation from the source project.
 pub struct DocsBuilder {
     config: Config,
     project: Arc<Project>,
 }
 
 impl DocsBuilder {
+    /// Creates a new DocsBuilder instance.
     pub fn new(config: Config, project: Arc<Project>) -> Self {
         Self { config, project }
     }
@@ -57,6 +59,9 @@ impl DocsBuilder {
             .join("\n")
     }
 
+    /// The main method of the DocsBuilder that builds the documentation.
+    /// It prepares the markdown files from the source project and writes them to the target directory.
+    /// If the module has no sections, it just copies the source file to the target directory.
     pub fn build(&self) -> Result<(), LPError> {
         for module in &self.project.modules {
             let source_path = self.get_module_source_path(&module.path);

@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use thiserror::Error;
 
-/// Errors that can occur during the execution of the utility for literate programming
+/// Errors that can occur during the execution of the build system.
 #[derive(Error, Debug)]
 pub enum LPError {
     /// IO related errors.

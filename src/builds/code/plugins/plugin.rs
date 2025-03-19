@@ -4,6 +4,16 @@ use crate::error::LPError;
 use mlua::{Function, Lua};
 use std::{path::PathBuf, sync::Arc};
 
+/// Get the plugin functions.
+/// 
+/// Compiles the plugin code and gets the functions with the given names.
+/// 
+/// # Arguments
+/// * `lua` - the Lua instance.
+/// * `plugin_path` - the path to the plugin.
+/// * `func_names` - the names of the functions to get.
+/// # Returns
+/// Returns either a vector of functions in the same order as the given list of their names or an LPError.
 pub fn get_plugin_funcs(
     lua: &Arc<Lua>,
     plugin_path: &PathBuf,

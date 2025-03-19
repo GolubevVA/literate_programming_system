@@ -6,9 +6,13 @@ use super::constants::{CODE_SUBDIR_NAME, DOCS_SUBDIR_NAME};
 
 #[derive(Clone)]
 pub struct Config {
+    /// the directory where the documentation will be generated
     pub docs_dir: PathBuf,
+    /// the directory where the code will be generated
     pub code_dir: PathBuf,
+    /// the directory where the code plugins are located
     pub code_plugins_dir: PathBuf,
+    /// the source project directory
     pub source_dir: PathBuf,
     /// clear the target directory before building
     pub force: bool,

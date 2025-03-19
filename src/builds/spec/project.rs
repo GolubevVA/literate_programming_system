@@ -10,6 +10,7 @@ use crate::error::LPError;
 use super::structs::{Module, Project};
 
 impl Project {
+    /// Creates a new Project instance.
     pub fn new(source_dir: &Path) -> Result<Self, LPError> {
         let modules = WalkDir::new(source_dir)
             .into_iter()

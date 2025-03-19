@@ -12,6 +12,7 @@ use mlua::{Function, Lua};
 
 use super::plugin::get_plugin_funcs;
 
+/// Calls the functions of the plugins.
 pub struct PluginsCaller {
     plugin_import_functions: HashMap<String, Function>,
     plugin_cleaning_functions: HashMap<String, Function>,
@@ -23,7 +24,7 @@ const PLUGIN_CLEANIONG_CODE_FUNC_NAME: &str = "clean_code";
 
 impl PluginsCaller {
     /// Scans the plugins directory (`dir`) for files named `*.lua` (without descending into subdirs).
-    /// Each plugin file is loaded into a LuaPlugin. The name is set to the file's name without the extension.
+    /// Each plugin file is loaded, the necessary functions are extracted and stored in the struct.
     pub fn new(lua: Arc<Lua>, dir: &Path) -> Result<Self, LPError> {
         let mut plugin_import_functions = HashMap::new();
         let mut plugin_cleaning_functions = HashMap::new();

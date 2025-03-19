@@ -17,6 +17,7 @@ use crate::{
 
 use super::{config::Config, plugins::caller::PluginsCaller};
 
+/// CodeBuilder is a struct that is responsible for building the code from the source project.
 pub struct CodeBuilder {
     config: Config,
     project: Arc<Project>,
@@ -25,6 +26,12 @@ pub struct CodeBuilder {
 }
 
 impl CodeBuilder {
+    /// Creates a new CodeBuilder instance.
+    /// # Arguments
+    /// * `config` - a Config instance that contains the configuration for the builder.
+    /// * `project` - an Arc<Project> instance that contains the source project.
+    /// * `index` - an Arc<ProjectIndex> instance that contains the index of the project.
+    /// * `lua` - an Arc<Lua> instance that is used for running Lua plugins.
     pub fn new(
         config: Config,
         project: Arc<Project>,
@@ -133,6 +140,10 @@ impl CodeBuilder {
         )
     }
 
+    /// The main method of the CodeBuilder that builds the code.
+    /// It validates the references, prepares the final code and writes it to the target directory.
+    /// If the module has no sections, it just copies the source file to the target directory.
+    /// Returns an error if any of the operations failed.
     pub fn build(&self) -> Result<(), LPError> {
         for module in &self.project.modules {
             if module.sections.is_some() {

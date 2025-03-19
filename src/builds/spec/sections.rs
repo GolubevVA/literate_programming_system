@@ -80,6 +80,9 @@ impl Section {
     }
 }
 
+/// Represents a literate file, which is a collection of sections.
+/// 
+/// It can be deserialized from a string. It's used to form a module.
 #[derive(Debug, Deserialize)]
 pub struct LiterateFile {
     pub sections: Vec<Section>,

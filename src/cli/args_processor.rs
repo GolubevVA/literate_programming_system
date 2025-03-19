@@ -12,6 +12,7 @@ use crate::error::LPError;
 pub struct ParamsProcessor {}
 
 impl ParamsProcessor {
+    /// Creates a new instance of ParamsProcessor.
     pub fn new() -> Self {
         Self {}
     }
@@ -34,5 +35,39 @@ impl ParamsProcessor {
             Some(e) => Err(e),
             None => Ok(params),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+    use tempfile::tempdir;
+    use super::*;
+
+    #[test]
+    fn test_validate_params() {
+        let processor = ParamsProcessor::new();
+        let temp_dir = tempdir().unwrap();
+        let params = Params {
+            src_dir: temp_dir.path().to_path_buf(),
+            target_dir: PathBuf::from("target"),
+            plugins_dir: PathBuf::from("plugins"),
+            force: false,
+        };
+
+        assert!(processor.validate_params(&params).is_none());
+    }
+
+    #[test]
+    fn test_validate_params_invalid() {
+        let processor = ParamsProcessor::new();
+        let params = Params {
+            src_dir: PathBuf::from("tests_invalid"),
+            target_dir: PathBuf::from("target"),
+            plugins_dir: PathBuf::from("plugins"),
+            force: false,
+        };
+
+        assert!(processor.validate_params(&params).is_some());
     }
 }

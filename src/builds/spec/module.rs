@@ -12,6 +12,10 @@ use super::utils::clean_path;
 use super::{sections::LiterateFile, structs::Module};
 
 impl Module {
+    /// Creates a new module instance.
+    /// # Arguments
+    /// * `source_dir` - a Path instance that points to the source directory.
+    /// * `path` - a Path instance that points to the module file.
     pub fn new(source_dir: &Path, path: &Path) -> Result<Self, LPError> {
         let module_path = clean_path(source_dir, path);
 

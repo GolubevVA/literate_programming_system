@@ -32,11 +32,11 @@ pub fn module_name(module_path: &PathBuf) -> PathBuf {
 ///
 /// E.g. `dir/a.py.lpnb` -> `py` or `Dockerfile.lpnb` -> `Dockefile`
 pub fn get_module_extension(module: &PathBuf) -> String {
-    prepare_module_file_extension(module)
+    let without_main_extension = prepare_module_file_extension(module);
+    without_main_extension
         .extension()
-        .unwrap_or(std::ffi::OsStr::new(module.to_str().unwrap()))
-        .to_str()
-        .unwrap()
+        .unwrap_or(without_main_extension.as_os_str())
+        .to_string_lossy()
         .to_string()
 }
 
@@ -56,4 +56,62 @@ pub fn clean_path(source_dir: &Path, path: &Path) -> PathBuf {
 /// E.g.: "My Header" -> "my-header"
 pub fn header_to_anchor(header: &str) -> String {
     header.trim().replace(' ', "-")
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn test_prepare_module_file_extension() {
+        let path = PathBuf::from("example.lpnb");
+        assert_eq!(prepare_module_file_extension(&path), PathBuf::from("example"));
+
+        let path = PathBuf::from("script.py.lpnb");
+        assert_eq!(prepare_module_file_extension(&path), PathBuf::from("script.py"));
+
+        let path = PathBuf::from("regular_file.txt");
+        assert_eq!(prepare_module_file_extension(&path), PathBuf::from("regular_file.txt"));
+    }
+
+    #[test]
+    fn test_module_name() {
+        let path = PathBuf::from("example.py.lpnb");
+        assert_eq!(module_name(&path), PathBuf::from("example"));
+
+        let path = PathBuf::from("Dockerfile.lpnb");
+        assert_eq!(module_name(&path), PathBuf::from("Dockerfile"));
+
+        let path = PathBuf::from("script.lpnb");
+        assert_eq!(module_name(&path), PathBuf::from("script"));
+    }
+
+    #[test]
+    fn test_get_module_extension() {
+        let path = PathBuf::from("script.py.lpnb");
+        assert_eq!(get_module_extension(&path), "py");
+
+        let path = PathBuf::from("Dockerfile.lpnb");
+        assert_eq!(get_module_extension(&path), "Dockerfile");
+
+        let path = PathBuf::from("file.txt.lpnb");
+        assert_eq!(get_module_extension(&path), "txt");
+    }
+
+    #[test]
+    fn test_clean_path() {
+        let source_dir = Path::new("/projects/myapp");
+        let path = Path::new("/projects/myapp/src/main.rs");
+        assert_eq!(clean_path(source_dir, path), PathBuf::from("src/main.rs"));
+
+        let unrelated_path = Path::new("/other/location/file.txt");
+        assert_eq!(clean_path(source_dir, unrelated_path), PathBuf::from("/other/location/file.txt"));
+    }
+
+    #[test]
+    fn test_header_to_anchor() {
+        assert_eq!(header_to_anchor("Introduction"), "Introduction");
+        assert_eq!(header_to_anchor("Getting Started"), "Getting-Started");
+        assert_eq!(header_to_anchor("  Multiple   Spaces  "), "Multiple---Spaces");
+    }
 }

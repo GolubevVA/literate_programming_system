@@ -13,6 +13,7 @@ use super::{
     spec::structs::Project,
 };
 
+/// Builder is a struct that is responsible for building the code and documentation from the source project.
 pub struct Builder {
     config: Config,
     code_builder: CodeBuilder,
@@ -20,6 +21,12 @@ pub struct Builder {
 }
 
 impl Builder {
+    /// Creates a new Builder instance.
+    /// # Arguments
+    /// * `config` - a Config instance that contains the configuration for the builder.
+    /// * `lua` - an Arc<Lua> instance that is used for running Lua plugins.
+    /// # Returns
+    /// Returns either a Builder instance or an LPError.
     pub fn new(config: Config, lua: Arc<Lua>) -> Result<Self, LPError> {
         let project = match Project::new(&config.source_dir) {
             Ok(project) => project,
@@ -61,6 +68,7 @@ impl Builder {
         Ok(())
     }
 
+    /// The main method that builds the code and documentation.
     pub fn build(&self) -> Result<(), LPError> {
         self.init()?;
 
@@ -71,5 +79,28 @@ impl Builder {
         self.docs_builder.build()?;
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use tempfile::tempdir;
+    use super::*;
+
+    #[test]
+    fn test_new_builder_and_init() {
+        let temp_dir = tempdir().unwrap();
+        let config = Config::new(
+            &temp_dir.path().join("target"),
+            &temp_dir.path().join("src"),
+            &temp_dir.path().join("plugins"),
+            false,
+        );
+        let lua = Arc::new(Lua::new());
+        let builder = Builder::new(config, lua);
+        assert!(builder.is_ok());
+
+        let builder = builder.unwrap();
+        assert!(builder.init().is_ok());
     }
 }
