@@ -28,6 +28,18 @@ pub fn module_name(module_path: &PathBuf) -> PathBuf {
     path
 }
 
+/// Returns module's real extension
+///
+/// E.g. `dir/a.py.lpnb` -> `py` or `Dockerfile.lpnb` -> `Dockefile`
+pub fn get_module_extension(module: &PathBuf) -> String {
+    prepare_module_file_extension(module)
+        .extension()
+        .unwrap_or(std::ffi::OsStr::new(module.to_str().unwrap()))
+        .to_str()
+        .unwrap()
+        .to_string()
+}
+
 /// eliminates the directory prefix from the path
 pub fn clean_path(source_dir: &Path, path: &Path) -> PathBuf {
     if let Ok(stripped_path) = path.strip_prefix(source_dir) {

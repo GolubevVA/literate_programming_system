@@ -9,7 +9,7 @@ use crate::{
         index::ProjectIndex,
         spec::{
             structs::{Module, Project},
-            utils,
+            utils::{self, get_module_extension},
         },
     },
     error::LPError,
@@ -87,11 +87,7 @@ impl CodeBuilder {
     fn get_all_imports(&self, module: Arc<Module>) -> Result<String, LPError> {
         let mut imports: Vec<String> = vec![];
         let current_path = utils::prepare_module_file_extension(&module.path);
-        let current_extension = current_path
-            .extension()
-            .unwrap_or(std::ffi::OsStr::new(""))
-            .to_str()
-            .unwrap();
+        let current_extension = get_module_extension(&current_path);
         for section in module.sections.as_ref().unwrap() {
             for reference in &section.references {
                 let reference_path = reference.path.clone();
@@ -109,8 +105,8 @@ impl CodeBuilder {
                     if current_path.extension().is_some() {
                         referenced_module_path.set_extension(current_path.extension().unwrap());
                     }
-                    let import = self.plugins_caller.call_plugin_func(
-                        current_extension,
+                    let import = self.plugins_caller.call_plugin_import_func(
+                        current_extension.as_str(),
                         &current_path,
                         &referenced_module_path,
                         &referenced_code,
@@ -131,7 +127,10 @@ impl CodeBuilder {
             Ok(imports) => imports,
             Err(e) => return Err(e),
         };
-        Ok(format!("{}\n{}", imports, no_imports_code))
+        self.plugins_caller.call_plugin_cleaning_func(
+            get_module_extension(&module.path).as_str(),
+            &format!("{}\n{}", imports, no_imports_code),
+        )
     }
 
     pub fn build(&self) -> Result<(), LPError> {
@@ -148,14 +147,14 @@ impl CodeBuilder {
             let target_path = self.prepare_target_path(&module.path);
 
             if let Some(parent) = target_path.parent() {
-                std::fs::create_dir_all(parent).map_err(|e| LPError::Io(e))?;
+                std::fs::create_dir_all(parent)?;
             }
 
             if module.sections.is_some() {
                 let final_code = self.prepare_final_code(module.clone())?;
-                std::fs::write(target_path, final_code).map_err(|e| LPError::Io(e))?;
+                std::fs::write(target_path, format!("{}\n", final_code))?;
             } else {
-                std::fs::copy(source_path, target_path).map_err(|e| LPError::Io(e))?;
+                std::fs::copy(source_path, target_path)?;
             }
         }
         Ok(())

@@ -4,11 +4,11 @@ use crate::error::LPError;
 use mlua::{Function, Lua};
 use std::{path::PathBuf, sync::Arc};
 
-pub fn get_plugin_func(
+pub fn get_plugin_funcs(
     lua: &Arc<Lua>,
     plugin_path: &PathBuf,
-    func_name: &str,
-) -> Result<Function, LPError> {
+    func_names: Vec<&str>,
+) -> Result<Vec<Function>, LPError> {
     let code = std::fs::read_to_string(&plugin_path)
         .map_err(|_| LPError::CannotReadFile(plugin_path.display().to_string()))?;
 
@@ -17,10 +17,16 @@ pub fn get_plugin_func(
         .exec()
         .map_err(|e| LPError::LuaRuntime(e.to_string()))?;
 
-    let func: Function = lua
-        .globals()
-        .get(func_name)
-        .map_err(|e| LPError::LuaRuntime(format!("No {} function: {}", func_name, e)))?;
+    let mut funcs = Vec::new();
 
-    Ok(func)
+    for func_name in func_names.iter() {
+        let func: Function = lua
+            .globals()
+            .get(*func_name)
+            .map_err(|e| LPError::LuaRuntime(format!("No {} function: {}", func_name, e)))?;
+
+        funcs.push(func);
+    }
+
+    Ok(funcs)
 }
