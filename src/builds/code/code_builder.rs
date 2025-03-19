@@ -40,6 +40,25 @@ impl CodeBuilder {
         })
     }
 
+    fn validate_references(&self, module: Arc<Module>) -> Result<(), LPError> {
+        for section in module.sections.as_ref().unwrap() {
+            for reference in &section.references {
+                let referenced_module_path = module.resolve_relative_module_path(&reference.path);
+                if self
+                    .index
+                    .get_section(&referenced_module_path, &reference.header)
+                    .is_none()
+                {
+                    return Err(LPError::IncorrectReference(
+                        reference.path.clone(),
+                        reference.header.clone(),
+                    ));
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn prepare_target_path(&self, path: &PathBuf) -> PathBuf {
         let mut result = self.config.target_code_dir.clone();
         result.push(path);
@@ -78,9 +97,9 @@ impl CodeBuilder {
                 let reference_path = reference.path.clone();
                 if reference_path != current_path && reference_path != PathBuf::from("") {
                     let referenced_module_relative_path = reference.path.clone();
-                    let mut referenced_module_path = module.resolve_relative_module_path(&referenced_module_relative_path);
+                    let mut referenced_module_path =
+                        module.resolve_relative_module_path(&referenced_module_relative_path);
                     let referenced_header = reference.header.clone();
-                    println!("{} {}", referenced_module_path.display(), referenced_header);
                     let referenced_code = self
                         .index
                         .get_section(&referenced_module_path, &referenced_header)
@@ -116,6 +135,14 @@ impl CodeBuilder {
     }
 
     pub fn build(&self) -> Result<(), LPError> {
+        for module in &self.project.modules {
+            if module.sections.is_some() {
+                if let Err(e) = self.validate_references(Arc::clone(module)) {
+                    return Err(e);
+                }
+            }
+        }
+
         for module in &self.project.modules {
             let source_path = self.get_module_source_path(&module.path);
             let target_path = self.prepare_target_path(&module.path);

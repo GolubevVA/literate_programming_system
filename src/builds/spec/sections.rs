@@ -5,7 +5,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::LPError;
 
-use super::{structs::{Reference, Section}, utils::header_to_anchor};
+use super::{
+    structs::{Reference, Section},
+    utils::header_to_anchor,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct RawSection {
@@ -84,7 +87,7 @@ pub struct LiterateFile {
 
 #[derive(Debug, Deserialize)]
 struct RawLiterateFile {
-    sections: Vec<RawSection>
+    sections: Vec<RawSection>,
 }
 
 impl RawLiterateFile {
@@ -94,6 +97,8 @@ impl RawLiterateFile {
 }
 
 impl LiterateFile {
+    /// Returns a new LiterateFile instance.
+    /// References are not validated.
     pub fn new(content: &str) -> Result<Self, LPError> {
         let raw_lit_file = RawLiterateFile::new(content);
 
@@ -121,8 +126,6 @@ impl LiterateFile {
                 }
             }
         }
-
-        // references validation needed now
 
         Ok(LiterateFile { sections })
     }

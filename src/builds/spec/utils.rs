@@ -15,8 +15,21 @@ pub fn prepare_module_file_extension(path: &PathBuf) -> PathBuf {
     result
 }
 
+/// Eliminate the spec's extension together with an extra extension if exists
+///
+/// So, it prepares the module's path to act as a reference's path.
+///
+/// E.g. `dir/a.py.lpnb` -> `dir/a`
+pub fn module_name(module_path: &PathBuf) -> PathBuf {
+    let mut path = prepare_module_file_extension(&module_path);
+    if path.extension().is_some() {
+        path.set_extension("");
+    }
+    path
+}
+
 /// eliminates the directory prefix from the path
-pub fn clean_path(source_dir: &Path, path: &Path) -> std::path::PathBuf {
+pub fn clean_path(source_dir: &Path, path: &Path) -> PathBuf {
     if let Ok(stripped_path) = path.strip_prefix(source_dir) {
         stripped_path.to_path_buf()
     } else {
@@ -28,7 +41,7 @@ pub fn clean_path(source_dir: &Path, path: &Path) -> std::path::PathBuf {
 /// 1. Trim whitespace
 /// 2. Replace spaces with hyphens
 ///
-/// For example: "My Header" -> "my-header"
+/// E.g.: "My Header" -> "my-header"
 pub fn header_to_anchor(header: &str) -> String {
     header.trim().replace(' ', "-")
 }

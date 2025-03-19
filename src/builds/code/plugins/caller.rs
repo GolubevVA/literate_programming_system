@@ -59,13 +59,16 @@ impl PluginsCaller {
         Ok(PluginsCaller { plugin_functions })
     }
 
-    /// each plugin correspons to some files extension
-    /// this function calls the plugin that corresponds to the given extension
-    /// Other parameters are passed to the plugin's function
+    /// Each plugin correspons to some files extension.
+    /// This function calls the plugin that corresponds to the given extension.
+    /// Other parameters are passed to the plugin's function.
     ///
     /// `current_path` - path to the file to which an import statement should be added
+    ///
     /// `referenced_path` - path to the file, the code from which should be imported
+    ///
     /// Both of them should have the same extension
+    ///
     /// `code_block` - the code block that should be imported
     pub fn call_plugin_func(
         &self,

@@ -17,10 +17,7 @@ impl ProjectIndex {
         let mut sections = HashMap::new();
 
         for module in project.modules.iter() {
-            let mut path = utils::prepare_module_file_extension(&module.path);
-            if path.extension().is_some() {
-                path.set_extension("");
-            }
+            let path = utils::module_name(&module.path);
 
             if let Some(module_sections) = &module.sections {
                 let mut header_map = HashMap::new();

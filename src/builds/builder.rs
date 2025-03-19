@@ -44,8 +44,8 @@ impl Builder {
 
         Ok(Builder {
             config: config.clone(),
-            code_builder: code_builder,
-            docs_builder: docs_builder,
+            code_builder,
+            docs_builder,
         })
     }
 

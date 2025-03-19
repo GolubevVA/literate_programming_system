@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+use std::path::PathBuf;
+
 use thiserror::Error;
 
 /// Errors that can occur during the execution of the utility for literate programming
@@ -24,6 +26,10 @@ pub enum LPError {
     /// Error when such plugin not found
     #[error("No plugin for files extension: {0}")]
     PluginNotFound(String),
+
+    /// Error when an incorrect reference is found
+    #[error("Impossible to refer to the module: {0}, section: {1}")]
+    IncorrectReference(PathBuf, String),
 
     /// Lua runtime errors.
     #[error("Lua error: {0}")]
