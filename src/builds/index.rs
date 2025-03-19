@@ -27,7 +27,6 @@ impl ProjectIndex {
 
                 for section in module_sections {
                     if let Some(header) = &section.get_header() {
-                        println!("Adding {}/{}", path.display(), header);
                         header_map.insert(header.clone(), section.clone());
                     }
                 }

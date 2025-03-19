@@ -1,7 +1,9 @@
 #![forbid(unsafe_code)]
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
+
+use path_clean::clean;
 
 use crate::{config::constants::SYSTEM_FILES_EXTENSION, error::LPError};
 
@@ -43,5 +45,15 @@ impl Module {
             sections: Some(literate_file.sections.into_iter().map(Arc::new).collect()),
             path: clean_path(source_dir, path),
         })
+    }
+
+    /// Returns the path to the module which can be referred as a `path` from the current module
+    /// 
+    /// E.g. if module.path is `dir/a.py.lpnb` and `path` is `../b.py.lpnb`, the result will be `b.py.lpnb`
+    pub fn resolve_relative_module_path(&self, path: &Path) -> PathBuf {
+        let mut combined = self.path.clone();
+        combined.pop();
+        combined.push(path);
+        clean(combined)
     }
 }

@@ -10,6 +10,8 @@ pub struct Reference {
     /// It does not inlude the file extension.
     ///
     /// e.g. if the original path is `src/file.py.lpnb` then it would be `file`
+    /// 
+    /// As well, this path is relative to the current module's path.
     pub path: PathBuf,
 
     /// The header of the section, without the #s and the leading spaces.

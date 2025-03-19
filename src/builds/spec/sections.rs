@@ -93,7 +93,7 @@ pub struct LiterateFile {
 
 #[derive(Debug, Deserialize)]
 struct RawLiterateFile {
-    sections: Vec<RawSection>,
+    sections: Vec<RawSection>
 }
 
 impl RawLiterateFile {
@@ -119,15 +119,6 @@ impl LiterateFile {
                 header,
                 references: refs,
             };
-
-            for sec_ref in &section.references {
-                println!(
-                    "{} -> {:?} and {}",
-                    section.get_header().unwrap(),
-                    sec_ref.path,
-                    sec_ref.header
-                );
-            }
 
             let section_header = section.get_header();
 

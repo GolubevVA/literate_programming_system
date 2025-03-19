@@ -77,12 +77,10 @@ impl CodeBuilder {
             for reference in &section.references {
                 let reference_path = reference.path.clone();
                 if reference_path != current_path && reference_path != PathBuf::from("") {
-                    let mut referenced_module_path = reference.path.clone();
+                    let referenced_module_relative_path = reference.path.clone();
+                    let mut referenced_module_path = module.resolve_relative_module_path(&referenced_module_relative_path);
                     let referenced_header = reference.header.clone();
-                    println!(
-                        "Referencing: {:?} -> {:?} and {:?}",
-                        current_path, referenced_module_path, referenced_header
-                    );
+                    println!("{} {}", referenced_module_path.display(), referenced_header);
                     let referenced_code = self
                         .index
                         .get_section(&referenced_module_path, &referenced_header)
