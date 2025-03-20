@@ -19,12 +19,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(
-        target_dir: &Path,
-        source_dir: &Path,
-        code_plugins_dir: &Path,
-        force: bool,
-    ) -> Self {
+    pub fn new(target_dir: &Path, source_dir: &Path, code_plugins_dir: &Path, force: bool) -> Self {
         Config {
             docs_dir: target_dir.join(DOCS_SUBDIR_NAME),
             code_dir: target_dir.join(CODE_SUBDIR_NAME),
