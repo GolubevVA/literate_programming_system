@@ -81,7 +81,7 @@ impl Section {
 }
 
 /// Represents a literate file, which is a collection of sections.
-/// 
+///
 /// It can be deserialized from a string. It's used to form a module.
 #[derive(Debug, Deserialize)]
 pub struct LiterateFile {
@@ -163,7 +163,10 @@ mod tests {
             code: "".to_string(),
             docs: "## Multiple hashes ##".to_string(),
         };
-        assert_eq!(section.get_header(), Some("## Multiple hashes ##".to_string()));
+        assert_eq!(
+            section.get_header(),
+            Some("## Multiple hashes ##".to_string())
+        );
     }
 
     #[test]
@@ -221,7 +224,10 @@ mod tests {
             header: Some("## Complex Header: With Symbols!".to_string()),
             references: vec![],
         };
-        assert_eq!(section.get_header(), Some("Complex-Header:-With-Symbols!".to_string()));
+        assert_eq!(
+            section.get_header(),
+            Some("Complex-Header:-With-Symbols!".to_string())
+        );
 
         let section = Section {
             code: "".to_string(),
@@ -251,8 +257,14 @@ sections:
         assert!(result.is_ok());
         let lit_file = result.unwrap();
         assert_eq!(lit_file.sections.len(), 2);
-        assert_eq!(lit_file.sections[0].header, Some("# Hello Function".to_string()));
-        assert_eq!(lit_file.sections[1].header, Some("## World Function ##".to_string()));
+        assert_eq!(
+            lit_file.sections[0].header,
+            Some("# Hello Function".to_string())
+        );
+        assert_eq!(
+            lit_file.sections[1].header,
+            Some("## World Function ##".to_string())
+        );
     }
 
     #[test]

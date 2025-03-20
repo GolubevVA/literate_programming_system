@@ -9,7 +9,7 @@ use super::spec::structs::Project;
 use super::spec::utils;
 
 /// Index for the project sections.
-/// 
+///
 /// It's used to quickly find a section by its header and it's module path.
 pub struct ProjectIndex {
     sections: HashMap<PathBuf, HashMap<String, Arc<Section>>>,
@@ -50,8 +50,8 @@ impl ProjectIndex {
 }
 #[cfg(test)]
 mod tests {
-    use crate::builds::spec::structs::Module;
     use super::*;
+    use crate::builds::spec::structs::Module;
 
     fn create_test_project() -> Arc<Project> {
         let section1 = Arc::new(Section {
@@ -107,34 +107,46 @@ mod tests {
     fn test_new_project_index() {
         let project = create_test_project();
         let index = ProjectIndex::new(project);
-        
+
         assert!(index.sections.contains_key(&PathBuf::from("module1")));
-        assert!(index.sections.contains_key(&PathBuf::from("subdir/module2")));
+        assert!(index
+            .sections
+            .contains_key(&PathBuf::from("subdir/module2")));
         assert!(!index.sections.contains_key(&PathBuf::from("empty")));
-        
-        assert_eq!(index.sections.get(&PathBuf::from("module1")).unwrap().len(), 2);
-        assert_eq!(index.sections.get(&PathBuf::from("subdir/module2")).unwrap().len(), 1);
+
+        assert_eq!(
+            index.sections.get(&PathBuf::from("module1")).unwrap().len(),
+            2
+        );
+        assert_eq!(
+            index
+                .sections
+                .get(&PathBuf::from("subdir/module2"))
+                .unwrap()
+                .len(),
+            1
+        );
     }
 
     #[test]
     fn test_get_section() {
         let project = create_test_project();
         let index = ProjectIndex::new(project);
-        
+
         let section = index.get_section(&PathBuf::from("module1"), "Header-1");
         assert!(section.is_some());
         assert_eq!(section.unwrap().code, "code1");
-        
+
         let section = index.get_section(&PathBuf::from("subdir/module2"), "Header-3");
         assert!(section.is_some());
         assert_eq!(section.unwrap().code, "code4");
-        
+
         let section = index.get_section(&PathBuf::from("nonexistent"), "Header-1");
         assert!(section.is_none());
-        
+
         let section = index.get_section(&PathBuf::from("module1"), "Nonexistent-Header");
         assert!(section.is_none());
-        
+
         let section = index.get_section(&PathBuf::from("empty"), "Any-Header");
         assert!(section.is_none());
     }

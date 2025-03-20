@@ -67,18 +67,122 @@ impl DocsBuilder {
             let source_path = self.get_module_source_path(&module.path);
             let (target_path, extension) = self.prepare_target_path(&module.path);
             if let Some(parent) = target_path.parent() {
-                std::fs::create_dir_all(parent).map_err(|e| LPError::Io(e))?;
+                std::fs::create_dir_all(parent)?;
             }
             if let Some(sections) = &module.sections {
                 std::fs::write(
                     target_path,
                     self.prepare_final_docs(sections, extension.as_str()),
-                )
-                .map_err(|e| LPError::Io(e))?;
+                )?;
             } else {
-                std::fs::copy(source_path, target_path).map_err(|e| LPError::Io(e))?;
+                std::fs::copy(source_path, target_path)?;
             }
         }
         Ok(())
+    }
+}
+#[cfg(test)]
+mod tests {
+    use crate::config::constants::SYSTEM_FILES_EXTENSION;
+
+    use super::*;
+
+    #[test]
+    fn test_prepare_target_path_with_extension() {
+        let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
+        let project = Arc::new(Project { modules: vec![] });
+        let builder = DocsBuilder::new(config, project);
+
+        let path = PathBuf::from(format!("module.rs.{}", SYSTEM_FILES_EXTENSION));
+        let (target_path, extension) = builder.prepare_target_path(&path);
+
+        assert_eq!(target_path, PathBuf::from("/target/module.md"));
+        assert_eq!(extension, "rs");
+    }
+
+    #[test]
+    fn test_prepare_target_path_without_extension() {
+        let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
+        let project = Arc::new(Project { modules: vec![] });
+        let builder = DocsBuilder::new(config, project);
+
+        let path = PathBuf::from("README");
+        let (target_path, extension) = builder.prepare_target_path(&path);
+
+        assert_eq!(target_path, PathBuf::from("/target/README"));
+        assert_eq!(extension, "");
+    }
+
+    #[test]
+    fn test_prepare_target_path_nested_path() {
+        let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
+        let project = Arc::new(Project { modules: vec![] });
+        let builder = DocsBuilder::new(config, project);
+
+        let path = PathBuf::from(format!("dir/subdir/module.py.{}", SYSTEM_FILES_EXTENSION));
+        let (target_path, extension) = builder.prepare_target_path(&path);
+
+        assert_eq!(target_path, PathBuf::from("/target/dir/subdir/module.md"));
+        assert_eq!(extension, "py");
+    }
+
+    #[test]
+    fn test_get_module_source_path() {
+        let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
+        let project = Arc::new(Project { modules: vec![] });
+        let builder = DocsBuilder::new(config, project);
+
+        let module_path = PathBuf::from(format!("dir/module.rs.{}", SYSTEM_FILES_EXTENSION));
+        let source_path = builder.get_module_source_path(&module_path);
+
+        assert_eq!(
+            source_path,
+            PathBuf::from(format!("/source/dir/module.rs.{}", SYSTEM_FILES_EXTENSION))
+        );
+    }
+
+    #[test]
+    fn test_prepare_final_docs_single_section() {
+        let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
+        let project = Arc::new(Project { modules: vec![] });
+        let builder = DocsBuilder::new(config, project);
+
+        let section = Arc::new(Section {
+            code: "fn hello() {}".to_string(),
+            docs: "# Hello Function".to_string(),
+            header: Some("Hello Function".to_string()),
+            references: vec![],
+        });
+
+        let result = builder.prepare_final_docs(&[section], "rs");
+        let expected = "# Hello Function\n```rs\nfn hello() {}\n```";
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_prepare_final_docs_multiple_sections() {
+        let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
+        let project = Arc::new(Project { modules: vec![] });
+        let builder = DocsBuilder::new(config, project);
+
+        let section1 = Arc::new(Section {
+            code: "fn hello() {}".to_string(),
+            docs: "# Hello Function".to_string(),
+            header: Some("Hello Function".to_string()),
+            references: vec![],
+        });
+
+        let section2 = Arc::new(Section {
+            code: "fn world() {}".to_string(),
+            docs: "# World Function".to_string(),
+            header: Some("World Function".to_string()),
+            references: vec![],
+        });
+
+        let result = builder.prepare_final_docs(&[section1, section2], "rs");
+        let expected = "# Hello Function\n```rs\nfn hello() {}\n```\n# World Function\n```rs\nfn world() {}\n```";
+
+        assert_eq!(result, expected);
     }
 }

@@ -84,8 +84,8 @@ impl Builder {
 
 #[cfg(test)]
 mod tests {
-    use tempfile::tempdir;
     use super::*;
+    use tempfile::tempdir;
 
     #[test]
     fn test_new_builder_and_init() {

@@ -171,3 +171,90 @@ impl CodeBuilder {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::builds::spec::structs::Section;
+    use crate::config::constants::SYSTEM_FILES_EXTENSION;
+
+    #[test]
+    fn test_prepare_target_path() {
+        let config = Config::new(
+            PathBuf::from("/target"),
+            PathBuf::from("/source"),
+            PathBuf::from("/plugins"),
+        );
+        let project = Arc::new(Project { modules: vec![] });
+        let index = Arc::new(ProjectIndex::new(Arc::clone(&project)));
+        let lua = Arc::new(Lua::new());
+
+        let builder = CodeBuilder::new(config, project, index, Arc::clone(&lua)).unwrap();
+
+        let path = PathBuf::from(format!("module.rs.{}", SYSTEM_FILES_EXTENSION));
+        let target_path = builder.prepare_target_path(&path);
+
+        assert_eq!(target_path, PathBuf::from("/target/module.rs"));
+    }
+
+    #[test]
+    fn test_get_module_source_path() {
+        let config = Config::new(
+            PathBuf::from("/target"),
+            PathBuf::from("/source"),
+            PathBuf::from("/plugins"),
+        );
+        let project = Arc::new(Project { modules: vec![] });
+        let index = Arc::new(ProjectIndex::new(Arc::clone(&project)));
+        let lua = Arc::new(Lua::new());
+
+        let builder = CodeBuilder::new(config, project, index, Arc::clone(&lua)).unwrap();
+
+        let module_path = PathBuf::from(format!("dir/module.rs.{}", SYSTEM_FILES_EXTENSION));
+        let source_path = builder.get_module_source_path(&module_path);
+
+        assert_eq!(
+            source_path,
+            PathBuf::from(format!("/source/dir/module.rs.{}", SYSTEM_FILES_EXTENSION))
+        );
+    }
+
+    #[test]
+    fn test_get_all_code() {
+        let config = Config::new(
+            PathBuf::from("/target"),
+            PathBuf::from("/source"),
+            PathBuf::from("/plugins"),
+        );
+
+        let section1 = Arc::new(Section {
+            code: "fn hello() {}".to_string(),
+            docs: "# Hello Function".to_string(),
+            header: Some("Hello Function".to_string()),
+            references: vec![],
+        });
+
+        let section2 = Arc::new(Section {
+            code: "fn world() {}".to_string(),
+            docs: "# World Function".to_string(),
+            header: Some("World Function".to_string()),
+            references: vec![],
+        });
+
+        let module = Arc::new(Module {
+            path: PathBuf::from("test.rs.lpnb"),
+            sections: Some(vec![section1, section2]),
+        });
+
+        let project = Arc::new(Project { modules: vec![] });
+        let index = Arc::new(ProjectIndex::new(Arc::clone(&project)));
+        let lua = Arc::new(Lua::new());
+
+        let builder = CodeBuilder::new(config, project, index, Arc::clone(&lua)).unwrap();
+
+        let code = builder.get_all_code(module);
+        let expected = "fn hello() {}\nfn world() {}";
+
+        assert_eq!(code, expected);
+    }
+}

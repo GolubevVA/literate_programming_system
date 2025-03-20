@@ -65,13 +65,22 @@ mod tests {
     #[test]
     fn test_prepare_module_file_extension() {
         let path = PathBuf::from("example.lpnb");
-        assert_eq!(prepare_module_file_extension(&path), PathBuf::from("example"));
+        assert_eq!(
+            prepare_module_file_extension(&path),
+            PathBuf::from("example")
+        );
 
         let path = PathBuf::from("script.py.lpnb");
-        assert_eq!(prepare_module_file_extension(&path), PathBuf::from("script.py"));
+        assert_eq!(
+            prepare_module_file_extension(&path),
+            PathBuf::from("script.py")
+        );
 
         let path = PathBuf::from("regular_file.txt");
-        assert_eq!(prepare_module_file_extension(&path), PathBuf::from("regular_file.txt"));
+        assert_eq!(
+            prepare_module_file_extension(&path),
+            PathBuf::from("regular_file.txt")
+        );
     }
 
     #[test]
@@ -105,14 +114,23 @@ mod tests {
         assert_eq!(clean_path(source_dir, path), PathBuf::from("src/main.rs"));
 
         let unrelated_path = Path::new("/other/location/file.txt");
-        assert_eq!(clean_path(source_dir, unrelated_path), PathBuf::from("/other/location/file.txt"));
+        assert_eq!(
+            clean_path(source_dir, unrelated_path),
+            PathBuf::from("/other/location/file.txt")
+        );
     }
 
     #[test]
     fn test_header_to_anchor() {
         assert_eq!(header_to_anchor("Introduction"), "Introduction");
         assert_eq!(header_to_anchor("Getting Started"), "Getting-Started");
-        assert_eq!(header_to_anchor("  Multiple   Spaces  "), "Multiple---Spaces");
-        assert_eq!(header_to_anchor("hyphens-and!other signs?"), "hyphens-and!other-signs?");
+        assert_eq!(
+            header_to_anchor("  Multiple   Spaces  "),
+            "Multiple---Spaces"
+        );
+        assert_eq!(
+            header_to_anchor("hyphens-and!other signs?"),
+            "hyphens-and!other-signs?"
+        );
     }
 }

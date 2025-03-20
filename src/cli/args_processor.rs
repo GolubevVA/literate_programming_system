@@ -40,9 +40,9 @@ impl ParamsProcessor {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use std::path::PathBuf;
     use tempfile::tempdir;
-    use super::*;
 
     #[test]
     fn test_validate_params() {

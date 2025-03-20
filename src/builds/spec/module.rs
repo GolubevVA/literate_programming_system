@@ -80,8 +80,10 @@ mod tests {
     #[test]
     fn test_module_new_literate_file() {
         let dir = tempdir().unwrap();
-        let file_path = dir.path().join(format!("test.rs.{}", SYSTEM_FILES_EXTENSION));
-        
+        let file_path = dir
+            .path()
+            .join(format!("test.rs.{}", SYSTEM_FILES_EXTENSION));
+
         let content = r#"
 sections:
   - code: |
@@ -95,14 +97,17 @@ sections:
         let module = Module::new(dir.path(), &file_path).unwrap();
         assert!(module.sections.is_some());
         assert_eq!(module.sections.as_ref().unwrap().len(), 1);
-        assert_eq!(module.path, PathBuf::from(format!("test.rs.{}", SYSTEM_FILES_EXTENSION)));
+        assert_eq!(
+            module.path,
+            PathBuf::from(format!("test.rs.{}", SYSTEM_FILES_EXTENSION))
+        );
     }
 
     #[test]
     fn test_module_new_error_duplicate_headers() {
         let dir = tempdir().unwrap();
         let file_path = dir.path().join(format!("test.{}", SYSTEM_FILES_EXTENSION));
-        
+
         let content = r#"
 sections:
   - code: |
@@ -128,11 +133,14 @@ sections:
             path: PathBuf::from(format!("dir/module.{}", SYSTEM_FILES_EXTENSION)),
             sections: None,
         };
-        
+
         let formatted_path = format!("other.{}", SYSTEM_FILES_EXTENSION);
         let relative = Path::new(&formatted_path);
         let resolved = module.resolve_relative_module_path(relative);
-        assert_eq!(resolved, PathBuf::from(format!("dir/other.{}", SYSTEM_FILES_EXTENSION)));
+        assert_eq!(
+            resolved,
+            PathBuf::from(format!("dir/other.{}", SYSTEM_FILES_EXTENSION))
+        );
     }
 
     #[test]
@@ -141,7 +149,7 @@ sections:
             path: PathBuf::from(format!("dir/subdir/module.{}", SYSTEM_FILES_EXTENSION)),
             sections: None,
         };
-        
+
         let relative = format!("../other.{}", SYSTEM_FILES_EXTENSION);
         let relative = Path::new(&relative);
         let resolved = module.resolve_relative_module_path(relative);
@@ -154,7 +162,7 @@ sections:
             path: PathBuf::from(format!("dir/module.py.{}", SYSTEM_FILES_EXTENSION)),
             sections: None,
         };
-        
+
         let relative = Path::new("");
         let resolved = module.resolve_relative_module_path(relative);
         assert_eq!(resolved, module.path);
@@ -166,10 +174,13 @@ sections:
             path: PathBuf::from(format!("dir/module.{}", SYSTEM_FILES_EXTENSION)),
             sections: None,
         };
-        
+
         let relative = format!("subdir/other.{}", SYSTEM_FILES_EXTENSION);
         let relative = Path::new(&relative);
         let resolved = module.resolve_relative_module_path(relative);
-        assert_eq!(resolved, PathBuf::from(format!("dir/subdir/other.{}", SYSTEM_FILES_EXTENSION)));
+        assert_eq!(
+            resolved,
+            PathBuf::from(format!("dir/subdir/other.{}", SYSTEM_FILES_EXTENSION))
+        );
     }
 }
