@@ -1,11 +1,6 @@
 #![forbid(unsafe_code)]
 
-use std::{
-    collections::HashMap,
-    fs,
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::{collections::HashMap, fs, path::Path, rc::Rc};
 
 use crate::error::LPError;
 use mlua::{Function, Lua};
@@ -27,7 +22,7 @@ impl PluginsCaller {
     /// Each plugin file is loaded, the necessary functions are extracted and stored in the struct.
     ///
     /// The `lua` parameter must stay alive as long as the `PluginsCaller` instance is used.
-    pub fn new(lua: Arc<Lua>, dir: &Path) -> Result<Self, LPError> {
+    pub fn new(lua: Rc<Lua>, dir: &Path) -> Result<Self, LPError> {
         let mut plugin_import_functions = HashMap::new();
         let mut plugin_cleaning_functions = HashMap::new();
 
@@ -93,8 +88,8 @@ impl PluginsCaller {
     pub fn call_plugin_import_func(
         &self,
         extension: &str,
-        current_path: &PathBuf,
-        referenced_path: &PathBuf,
+        current_path: &Path,
+        referenced_path: &Path,
         code_block: &str,
     ) -> Result<String, LPError> {
         if let Some(plugin_func) = self.plugin_import_functions.get(extension) {
@@ -144,6 +139,7 @@ impl PluginsCaller {
 mod tests {
     use super::*;
     use std::io::Write;
+    use std::path::PathBuf;
     use tempfile::TempDir;
 
     fn create_temp_plugin(dir: &Path, filename: &str, content: &str) -> PathBuf {
@@ -156,7 +152,7 @@ mod tests {
 
     #[test]
     fn test_new_with_valid_plugins() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
         let plugin_code = r#"
@@ -171,7 +167,7 @@ mod tests {
 
         create_temp_plugin(temp_dir.path(), "test_plugin", plugin_code);
 
-        let result = PluginsCaller::new(Arc::clone(&lua), temp_dir.path());
+        let result = PluginsCaller::new(Rc::clone(&lua), temp_dir.path());
         assert!(result.is_ok());
 
         let caller = result.unwrap();
@@ -183,10 +179,10 @@ mod tests {
 
     #[test]
     fn test_new_with_empty_directory() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
-        let result = PluginsCaller::new(Arc::clone(&lua), temp_dir.path());
+        let result = PluginsCaller::new(Rc::clone(&lua), temp_dir.path());
         assert!(result.is_ok());
 
         let caller = result.unwrap();
@@ -196,13 +192,13 @@ mod tests {
 
     #[test]
     fn test_new_with_invalid_plugin() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
         let invalid_plugin_code = "garbage code that will fail";
         create_temp_plugin(temp_dir.path(), "invalid_plugin", invalid_plugin_code);
 
-        let result = PluginsCaller::new(Arc::clone(&lua), temp_dir.path());
+        let result = PluginsCaller::new(Rc::clone(&lua), temp_dir.path());
         assert!(result.is_err());
 
         match result {
@@ -213,7 +209,7 @@ mod tests {
 
     #[test]
     fn test_call_plugin_import_func_success() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
         let plugin_code = r#"
@@ -228,7 +224,7 @@ mod tests {
 
         create_temp_plugin(temp_dir.path(), "rs", plugin_code);
 
-        let caller = PluginsCaller::new(Arc::clone(&lua), temp_dir.path()).unwrap();
+        let caller = PluginsCaller::new(Rc::clone(&lua), temp_dir.path()).unwrap();
 
         let current_path = PathBuf::from("/path/to/current.rs");
         let referenced_path = PathBuf::from("/path/to/referenced.rs");
@@ -247,7 +243,7 @@ mod tests {
 
     #[test]
     fn test_call_plugin_import_func_not_found() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
         let plugin_code = r#"
@@ -262,7 +258,7 @@ mod tests {
 
         create_temp_plugin(temp_dir.path(), "rust", plugin_code);
 
-        let caller = PluginsCaller::new(Arc::clone(&lua), temp_dir.path()).unwrap();
+        let caller = PluginsCaller::new(Rc::clone(&lua), temp_dir.path()).unwrap();
 
         let result = caller.call_plugin_import_func(
             "python",
@@ -280,7 +276,7 @@ mod tests {
 
     #[test]
     fn test_call_plugin_cleaning_func_success() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
         let plugin_code = r#"
@@ -295,7 +291,7 @@ mod tests {
 
         create_temp_plugin(temp_dir.path(), "rust", plugin_code);
 
-        let caller = PluginsCaller::new(Arc::clone(&lua), temp_dir.path()).unwrap();
+        let caller = PluginsCaller::new(Rc::clone(&lua), temp_dir.path()).unwrap();
 
         let result = caller.call_plugin_cleaning_func("rust", "fn main() {}");
         assert!(result.is_ok());
@@ -304,7 +300,7 @@ mod tests {
 
     #[test]
     fn test_call_plugin_cleaning_func_not_found() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
         let plugin_code = r#"
@@ -319,7 +315,7 @@ mod tests {
 
         create_temp_plugin(temp_dir.path(), "rust", plugin_code);
 
-        let caller = PluginsCaller::new(Arc::clone(&lua), temp_dir.path()).unwrap();
+        let caller = PluginsCaller::new(Rc::clone(&lua), temp_dir.path()).unwrap();
 
         let result = caller.call_plugin_cleaning_func("py", "def main(): pass");
         assert!(result.is_err());
@@ -332,7 +328,7 @@ mod tests {
 
     #[test]
     fn test_multiple_plugins() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
         create_temp_plugin(
@@ -363,7 +359,7 @@ mod tests {
         "#,
         );
 
-        let caller = PluginsCaller::new(Arc::clone(&lua), temp_dir.path()).unwrap();
+        let caller = PluginsCaller::new(Rc::clone(&lua), temp_dir.path()).unwrap();
 
         assert_eq!(caller.plugin_import_functions.len(), 2);
         assert_eq!(caller.plugin_cleaning_functions.len(), 2);

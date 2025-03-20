@@ -65,9 +65,7 @@ impl RawSection {
 impl Section {
     /// returns referencable section's header if exists, formatted as an anchor
     pub fn get_header(&self) -> Option<String> {
-        if self.header.is_none() {
-            return None;
-        }
+        self.header.as_ref()?;
 
         let header_text = self
             .header

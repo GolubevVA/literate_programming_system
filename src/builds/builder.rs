@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use std::sync::Arc;
+use std::rc::Rc;
 
 use mlua::Lua;
 
@@ -24,15 +24,15 @@ impl Builder {
     /// Creates a new Builder instance.
     /// # Arguments
     /// * `config` - a Config instance that contains the configuration for the builder.
-    /// * `lua` - an Arc<Lua> instance that is used for running Lua plugins.
+    /// * `lua` - an Rc<Lua> instance that is used for running Lua plugins.
     /// # Returns
     /// Returns either a Builder instance or an LPError.
-    pub fn new(config: Config, lua: Arc<Lua>) -> Result<Self, LPError> {
+    pub fn new(config: Config, lua: Rc<Lua>) -> Result<Self, LPError> {
         let project = match Project::new(&config.source_dir) {
             Ok(project) => project,
             Err(e) => return Err(e),
         };
-        let shared_project = Arc::new(project);
+        let shared_project = Rc::new(project);
         let index = ProjectIndex::new(shared_project.clone());
         let code_builder = CodeBuilder::new(
             code::config::Config::new(
@@ -40,13 +40,13 @@ impl Builder {
                 config.source_dir.clone(),
                 config.code_plugins_dir.clone(),
             ),
-            Arc::clone(&shared_project),
-            Arc::new(index),
+            Rc::clone(&shared_project),
+            Rc::new(index),
             lua,
         )?;
         let docs_builder = DocsBuilder::new(
             docs::config::Config::new(config.docs_dir.clone(), config.source_dir.clone()),
-            Arc::clone(&shared_project),
+            Rc::clone(&shared_project),
         );
 
         Ok(Builder {
@@ -96,7 +96,7 @@ mod tests {
             &temp_dir.path().join("plugins"),
             false,
         );
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
         let builder = Builder::new(config, lua);
         assert!(builder.is_ok());
 

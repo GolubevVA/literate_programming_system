@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use std::{path::PathBuf, sync::Arc};
+use std::{path::PathBuf, rc::Rc};
 
 use mlua::Lua;
 
@@ -20,25 +20,25 @@ use super::{config::Config, plugins::caller::PluginsCaller};
 /// CodeBuilder is a struct that is responsible for building the code from the source project.
 pub struct CodeBuilder {
     config: Config,
-    project: Arc<Project>,
-    plugins_caller: Arc<PluginsCaller>,
-    index: Arc<ProjectIndex>,
+    project: Rc<Project>,
+    plugins_caller: Rc<PluginsCaller>,
+    index: Rc<ProjectIndex>,
 }
 
 impl CodeBuilder {
     /// Creates a new CodeBuilder instance.
     /// # Arguments
     /// * `config` - a Config instance that contains the configuration for the builder.
-    /// * `project` - an Arc<Project> instance that contains the source project.
-    /// * `index` - an Arc<ProjectIndex> instance that contains the index of the project.
-    /// * `lua` - an Arc<Lua> instance that is used for running Lua plugins.
+    /// * `project` - an Rc<Project> instance that contains the source project.
+    /// * `index` - an Rc<ProjectIndex> instance that contains the index of the project.
+    /// * `lua` - an Rc<Lua> instance that is used for running Lua plugins.
     pub fn new(
         config: Config,
-        project: Arc<Project>,
-        index: Arc<ProjectIndex>,
-        lua: Arc<Lua>,
+        project: Rc<Project>,
+        index: Rc<ProjectIndex>,
+        lua: Rc<Lua>,
     ) -> Result<Self, LPError> {
-        let plugins_caller = Arc::new(PluginsCaller::new(lua.clone(), &config.plugins_dir)?);
+        let plugins_caller = Rc::new(PluginsCaller::new(lua.clone(), &config.plugins_dir)?);
         Ok(Self {
             config,
             project,
@@ -47,7 +47,7 @@ impl CodeBuilder {
         })
     }
 
-    fn validate_references(&self, module: Arc<Module>) -> Result<(), LPError> {
+    fn validate_references(&self, module: Rc<Module>) -> Result<(), LPError> {
         for section in module.sections.as_ref().unwrap() {
             for reference in &section.references {
                 let referenced_module_path = module.resolve_relative_module_path(&reference.path);
@@ -78,7 +78,7 @@ impl CodeBuilder {
         result
     }
 
-    fn get_all_code(&self, module: Arc<Module>) -> String {
+    fn get_all_code(&self, module: Rc<Module>) -> String {
         module
             .sections
             .as_ref()
@@ -91,7 +91,7 @@ impl CodeBuilder {
 
     /// module must have sections
     /// all the references should be valid
-    fn get_all_imports(&self, module: Arc<Module>) -> Result<String, LPError> {
+    fn get_all_imports(&self, module: Rc<Module>) -> Result<String, LPError> {
         let mut imports: Vec<String> = vec![];
         let current_path = utils::prepare_module_file_extension(&module.path);
         let current_extension = get_module_extension(&current_path);
@@ -128,7 +128,7 @@ impl CodeBuilder {
         Ok(imports.join("\n"))
     }
 
-    fn prepare_final_code(&self, module: Arc<Module>) -> Result<String, LPError> {
+    fn prepare_final_code(&self, module: Rc<Module>) -> Result<String, LPError> {
         let no_imports_code = self.get_all_code(module.clone());
         let imports = match self.get_all_imports(module.clone()) {
             Ok(imports) => imports,
@@ -147,9 +147,7 @@ impl CodeBuilder {
     pub fn build(&self) -> Result<(), LPError> {
         for module in &self.project.modules {
             if module.sections.is_some() {
-                if let Err(e) = self.validate_references(Arc::clone(module)) {
-                    return Err(e);
-                }
+                self.validate_references(Rc::clone(module))?
             }
         }
 
@@ -185,11 +183,11 @@ mod tests {
             PathBuf::from("/source"),
             PathBuf::from("/plugins"),
         );
-        let project = Arc::new(Project { modules: vec![] });
-        let index = Arc::new(ProjectIndex::new(Arc::clone(&project)));
-        let lua = Arc::new(Lua::new());
+        let project = Rc::new(Project { modules: vec![] });
+        let index = Rc::new(ProjectIndex::new(Rc::clone(&project)));
+        let lua = Rc::new(Lua::new());
 
-        let builder = CodeBuilder::new(config, project, index, Arc::clone(&lua)).unwrap();
+        let builder = CodeBuilder::new(config, project, index, Rc::clone(&lua)).unwrap();
 
         let path = PathBuf::from(format!("module.rs.{}", SYSTEM_FILES_EXTENSION));
         let target_path = builder.prepare_target_path(&path);
@@ -204,11 +202,11 @@ mod tests {
             PathBuf::from("/source"),
             PathBuf::from("/plugins"),
         );
-        let project = Arc::new(Project { modules: vec![] });
-        let index = Arc::new(ProjectIndex::new(Arc::clone(&project)));
-        let lua = Arc::new(Lua::new());
+        let project = Rc::new(Project { modules: vec![] });
+        let index = Rc::new(ProjectIndex::new(Rc::clone(&project)));
+        let lua = Rc::new(Lua::new());
 
-        let builder = CodeBuilder::new(config, project, index, Arc::clone(&lua)).unwrap();
+        let builder = CodeBuilder::new(config, project, index, Rc::clone(&lua)).unwrap();
 
         let module_path = PathBuf::from(format!("dir/module.rs.{}", SYSTEM_FILES_EXTENSION));
         let source_path = builder.get_module_source_path(&module_path);
@@ -227,30 +225,30 @@ mod tests {
             PathBuf::from("/plugins"),
         );
 
-        let section1 = Arc::new(Section {
+        let section1 = Rc::new(Section {
             code: "fn hello() {}".to_string(),
             docs: "# Hello Function".to_string(),
             header: Some("Hello Function".to_string()),
             references: vec![],
         });
 
-        let section2 = Arc::new(Section {
+        let section2 = Rc::new(Section {
             code: "fn world() {}".to_string(),
             docs: "# World Function".to_string(),
             header: Some("World Function".to_string()),
             references: vec![],
         });
 
-        let module = Arc::new(Module {
+        let module = Rc::new(Module {
             path: PathBuf::from("test.rs.lpnb"),
             sections: Some(vec![section1, section2]),
         });
 
-        let project = Arc::new(Project { modules: vec![] });
-        let index = Arc::new(ProjectIndex::new(Arc::clone(&project)));
-        let lua = Arc::new(Lua::new());
+        let project = Rc::new(Project { modules: vec![] });
+        let index = Rc::new(ProjectIndex::new(Rc::clone(&project)));
+        let lua = Rc::new(Lua::new());
 
-        let builder = CodeBuilder::new(config, project, index, Arc::clone(&lua)).unwrap();
+        let builder = CodeBuilder::new(config, project, index, Rc::clone(&lua)).unwrap();
 
         let code = builder.get_all_code(module);
         let expected = "fn hello() {}\nfn world() {}";

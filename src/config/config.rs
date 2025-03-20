@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use super::constants::{CODE_SUBDIR_NAME, DOCS_SUBDIR_NAME};
 
@@ -20,16 +20,16 @@ pub struct Config {
 
 impl Config {
     pub fn new(
-        target_dir: &PathBuf,
-        source_dir: &PathBuf,
-        code_plugins_dir: &PathBuf,
+        target_dir: &Path,
+        source_dir: &Path,
+        code_plugins_dir: &Path,
         force: bool,
     ) -> Self {
         Config {
             docs_dir: target_dir.join(DOCS_SUBDIR_NAME),
             code_dir: target_dir.join(CODE_SUBDIR_NAME),
             code_plugins_dir: code_plugins_dir.to_path_buf(),
-            source_dir: source_dir.clone(),
+            source_dir: source_dir.to_path_buf(),
             force,
         }
     }

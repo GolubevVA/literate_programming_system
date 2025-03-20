@@ -1,5 +1,5 @@
 #![forbid(unsafe_code)]
-use std::{path::PathBuf, sync::Arc};
+use std::{path::PathBuf, rc::Rc};
 
 use serde::{Deserialize, Serialize};
 
@@ -47,11 +47,11 @@ pub struct Module {
     /// Not whole paths, just what comes after the source directory.
     pub path: PathBuf,
 
-    pub sections: Option<Vec<Arc<Section>>>,
+    pub sections: Option<Vec<Rc<Section>>>,
 }
 
 /// A project is a collection of modules.
 /// It's the main entity of the literate programming system.
 pub struct Project {
-    pub modules: Vec<Arc<Module>>,
+    pub modules: Vec<Rc<Module>>,
 }

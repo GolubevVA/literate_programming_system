@@ -2,7 +2,7 @@
 
 use crate::error::LPError;
 use mlua::{Function, Lua};
-use std::{path::PathBuf, sync::Arc};
+use std::{path::PathBuf, rc::Rc};
 
 /// Get the plugin functions.
 ///
@@ -15,11 +15,11 @@ use std::{path::PathBuf, sync::Arc};
 /// # Returns
 /// Returns either a vector of functions in the same order as the given list of their names or an LPError.
 pub fn get_plugin_funcs(
-    lua: &Arc<Lua>,
+    lua: &Rc<Lua>,
     plugin_path: &PathBuf,
     func_names: Vec<&str>,
 ) -> Result<Vec<Function>, LPError> {
-    let code = std::fs::read_to_string(&plugin_path)
+    let code = std::fs::read_to_string(plugin_path)
         .map_err(|_| LPError::CannotReadFile(plugin_path.display().to_string()))?;
 
     lua.load(&code)
@@ -58,7 +58,7 @@ mod tests {
 
     #[test]
     fn test_get_plugin_funcs_success() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
 
         let lua_code = r#"
         function test_function()
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_get_plugin_funcs_nonexistent_file() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
         let plugin_path = PathBuf::from("/nonexistent/file.lua");
 
         let result = get_plugin_funcs(&lua, &plugin_path, vec!["test_function"]);
@@ -101,7 +101,7 @@ mod tests {
 
     #[test]
     fn test_get_plugin_funcs_invalid_lua() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
 
         let lua_code = r#"
         garbage
@@ -122,7 +122,7 @@ mod tests {
 
     #[test]
     fn test_get_plugin_funcs_missing_function() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
 
         let lua_code = r#"
         function test_function()
@@ -145,7 +145,7 @@ mod tests {
 
     #[test]
     fn test_get_plugin_funcs_execute_functions() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
 
         let lua_code = r#"
         function add(a, b)
@@ -178,7 +178,7 @@ mod tests {
 
     #[test]
     fn test_get_plugin_funcs_empty_function_list() {
-        let lua = Arc::new(Lua::new());
+        let lua = Rc::new(Lua::new());
 
         let lua_code = r#"
         function test_function()

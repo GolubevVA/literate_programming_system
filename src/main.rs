@@ -9,7 +9,7 @@ use builds::builder::Builder;
 use cli::args_processor::ParamsProcessor;
 use config::config::Config;
 use error::LPError;
-use std::{process, sync::Arc};
+use std::{process, rc::Rc};
 
 fn main() -> Result<(), LPError> {
     let params_parser = ParamsProcessor::new();
@@ -28,7 +28,7 @@ fn main() -> Result<(), LPError> {
         params.force,
     );
 
-    let lua = Arc::new(mlua::Lua::new());
+    let lua = Rc::new(mlua::Lua::new());
 
     let builder = match Builder::new(config, lua.clone()) {
         Ok(builder) => builder,

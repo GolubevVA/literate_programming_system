@@ -3,7 +3,7 @@
 use crate::builds::spec::structs::Section;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::rc::Rc;
 
 use super::spec::structs::Project;
 use super::spec::utils;
@@ -12,12 +12,12 @@ use super::spec::utils;
 ///
 /// It's used to quickly find a section by its header and it's module path.
 pub struct ProjectIndex {
-    sections: HashMap<PathBuf, HashMap<String, Arc<Section>>>,
+    sections: HashMap<PathBuf, HashMap<String, Rc<Section>>>,
 }
 
 impl ProjectIndex {
     /// Creates a new project index from the project.
-    pub fn new(project: Arc<Project>) -> ProjectIndex {
+    pub fn new(project: Rc<Project>) -> ProjectIndex {
         let mut sections = HashMap::new();
 
         for module in project.modules.iter() {
@@ -44,7 +44,7 @@ impl ProjectIndex {
     /// The path is treated as a module path without any extension
     ///
     /// e.g. cmd/api/main, but not ~/projects/my-project/cmd/api/main.rs.lpnb
-    pub fn get_section(&self, path: &PathBuf, header: &str) -> Option<&Arc<Section>> {
+    pub fn get_section(&self, path: &PathBuf, header: &str) -> Option<&Rc<Section>> {
         self.sections.get(path)?.get(header)
     }
 }
@@ -53,37 +53,37 @@ mod tests {
     use super::*;
     use crate::builds::spec::structs::Module;
 
-    fn create_test_project() -> Arc<Project> {
-        let section1 = Arc::new(Section {
+    fn create_test_project() -> Rc<Project> {
+        let section1 = Rc::new(Section {
             code: "code1".to_string(),
             docs: "docs1".to_string(),
             header: Some("Header 1".to_string()),
             references: vec![],
         });
 
-        let section2 = Arc::new(Section {
+        let section2 = Rc::new(Section {
             code: "code2".to_string(),
             docs: "docs2".to_string(),
             header: Some("Header 2".to_string()),
             references: vec![],
         });
 
-        let section_no_header = Arc::new(Section {
+        let section_no_header = Rc::new(Section {
             code: "code3".to_string(),
             docs: "docs3".to_string(),
             header: None,
             references: vec![],
         });
 
-        let module1 = Arc::new(Module {
+        let module1 = Rc::new(Module {
             path: PathBuf::from("module1.rs.lpnb"),
             sections: Some(vec![section1.clone(), section2.clone()]),
         });
 
-        let module2 = Arc::new(Module {
+        let module2 = Rc::new(Module {
             path: PathBuf::from("subdir/module2.rs.lpnb"),
             sections: Some(vec![
-                Arc::new(Section {
+                Rc::new(Section {
                     code: "code4".to_string(),
                     docs: "docs4".to_string(),
                     header: Some("Header 3".to_string()),
@@ -93,12 +93,12 @@ mod tests {
             ]),
         });
 
-        let module_no_sections = Arc::new(Module {
+        let module_no_sections = Rc::new(Module {
             path: PathBuf::from("empty.rs.lpnb"),
             sections: None,
         });
 
-        Arc::new(Project {
+        Rc::new(Project {
             modules: vec![module1, module2, module_no_sections],
         })
     }

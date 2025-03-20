@@ -5,8 +5,8 @@ use std::path::{Path, PathBuf};
 use crate::config::constants::SYSTEM_FILES_EXTENSION;
 
 /// eliminates the spec's extension
-pub fn prepare_module_file_extension(path: &PathBuf) -> PathBuf {
-    let mut result = path.clone();
+pub fn prepare_module_file_extension(path: &Path) -> PathBuf {
+    let mut result = path.to_path_buf();
     if let Some(extension) = path.extension() {
         if extension == SYSTEM_FILES_EXTENSION {
             result.set_extension("");
@@ -20,8 +20,8 @@ pub fn prepare_module_file_extension(path: &PathBuf) -> PathBuf {
 /// So, it prepares the module's path to act as a reference's path.
 ///
 /// E.g. `dir/a.py.lpnb` -> `dir/a`
-pub fn module_name(module_path: &PathBuf) -> PathBuf {
-    let mut path = prepare_module_file_extension(&module_path);
+pub fn module_name(module_path: &Path) -> PathBuf {
+    let mut path = prepare_module_file_extension(module_path);
     if path.extension().is_some() {
         path.set_extension("");
     }
@@ -31,7 +31,7 @@ pub fn module_name(module_path: &PathBuf) -> PathBuf {
 /// Returns module's real extension
 ///
 /// E.g. `dir/a.py.lpnb` -> `py` or `Dockerfile.lpnb` -> `Dockefile`
-pub fn get_module_extension(module: &PathBuf) -> String {
+pub fn get_module_extension(module: &Path) -> String {
     let without_main_extension = prepare_module_file_extension(module);
     without_main_extension
         .extension()

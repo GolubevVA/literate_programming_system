@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use std::{path::PathBuf, sync::Arc};
+use std::{path::PathBuf, rc::Rc};
 
 use mockall::predicate::str;
 
@@ -18,12 +18,12 @@ use crate::{
 /// DocsBuilder is a struct that is responsible for building the documentation from the source project.
 pub struct DocsBuilder {
     config: Config,
-    project: Arc<Project>,
+    project: Rc<Project>,
 }
 
 impl DocsBuilder {
     /// Creates a new DocsBuilder instance.
-    pub fn new(config: Config, project: Arc<Project>) -> Self {
+    pub fn new(config: Config, project: Rc<Project>) -> Self {
         Self { config, project }
     }
 
@@ -51,7 +51,7 @@ impl DocsBuilder {
         result
     }
 
-    fn prepare_final_docs(&self, sections: &[Arc<Section>], extension: &str) -> String {
+    fn prepare_final_docs(&self, sections: &[Rc<Section>], extension: &str) -> String {
         sections
             .iter()
             .map(|s| format!("{}\n```{}\n{}\n```", s.docs, extension, s.code))
@@ -90,7 +90,7 @@ mod tests {
     #[test]
     fn test_prepare_target_path_with_extension() {
         let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
-        let project = Arc::new(Project { modules: vec![] });
+        let project = Rc::new(Project { modules: vec![] });
         let builder = DocsBuilder::new(config, project);
 
         let path = PathBuf::from(format!("module.rs.{}", SYSTEM_FILES_EXTENSION));
@@ -103,7 +103,7 @@ mod tests {
     #[test]
     fn test_prepare_target_path_without_extension() {
         let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
-        let project = Arc::new(Project { modules: vec![] });
+        let project = Rc::new(Project { modules: vec![] });
         let builder = DocsBuilder::new(config, project);
 
         let path = PathBuf::from("README");
@@ -116,7 +116,7 @@ mod tests {
     #[test]
     fn test_prepare_target_path_nested_path() {
         let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
-        let project = Arc::new(Project { modules: vec![] });
+        let project = Rc::new(Project { modules: vec![] });
         let builder = DocsBuilder::new(config, project);
 
         let path = PathBuf::from(format!("dir/subdir/module.py.{}", SYSTEM_FILES_EXTENSION));
@@ -129,7 +129,7 @@ mod tests {
     #[test]
     fn test_get_module_source_path() {
         let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
-        let project = Arc::new(Project { modules: vec![] });
+        let project = Rc::new(Project { modules: vec![] });
         let builder = DocsBuilder::new(config, project);
 
         let module_path = PathBuf::from(format!("dir/module.rs.{}", SYSTEM_FILES_EXTENSION));
@@ -144,10 +144,10 @@ mod tests {
     #[test]
     fn test_prepare_final_docs_single_section() {
         let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
-        let project = Arc::new(Project { modules: vec![] });
+        let project = Rc::new(Project { modules: vec![] });
         let builder = DocsBuilder::new(config, project);
 
-        let section = Arc::new(Section {
+        let section = Rc::new(Section {
             code: "fn hello() {}".to_string(),
             docs: "# Hello Function".to_string(),
             header: Some("Hello Function".to_string()),
@@ -163,17 +163,17 @@ mod tests {
     #[test]
     fn test_prepare_final_docs_multiple_sections() {
         let config = Config::new(PathBuf::from("/target"), PathBuf::from("/source"));
-        let project = Arc::new(Project { modules: vec![] });
+        let project = Rc::new(Project { modules: vec![] });
         let builder = DocsBuilder::new(config, project);
 
-        let section1 = Arc::new(Section {
+        let section1 = Rc::new(Section {
             code: "fn hello() {}".to_string(),
             docs: "# Hello Function".to_string(),
             header: Some("Hello Function".to_string()),
             references: vec![],
         });
 
-        let section2 = Arc::new(Section {
+        let section2 = Rc::new(Section {
             code: "fn world() {}".to_string(),
             docs: "# World Function".to_string(),
             header: Some("World Function".to_string()),

@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::rc::Rc;
 
 use path_clean::clean;
 
@@ -25,7 +25,7 @@ impl Module {
             });
         }
 
-        let content = match std::fs::read_to_string(&path) {
+        let content = match std::fs::read_to_string(path) {
             Ok(content) => content,
             Err(_) => {
                 return Ok(Module {
@@ -41,7 +41,7 @@ impl Module {
         };
 
         Ok(Module {
-            sections: Some(literate_file.sections.into_iter().map(Arc::new).collect()),
+            sections: Some(literate_file.sections.into_iter().map(Rc::new).collect()),
             path: module_path,
         })
     }
