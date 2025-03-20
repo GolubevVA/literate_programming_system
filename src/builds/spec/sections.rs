@@ -73,7 +73,7 @@ impl Section {
             .header
             .as_ref()
             .unwrap()
-            .trim_start_matches(|c| c == '#')
+            .trim_matches(|c| c == '#')
             .trim();
 
         Some(header_to_anchor(header_text))
@@ -101,6 +101,7 @@ impl RawLiterateFile {
 
 impl LiterateFile {
     /// Returns a new LiterateFile instance.
+    /// Returns an error if the file's sections have duplicate headers.
     /// References are not validated.
     pub fn new(content: &str) -> Result<Self, LPError> {
         let raw_lit_file = RawLiterateFile::new(content);
@@ -131,5 +132,174 @@ impl LiterateFile {
         }
 
         Ok(LiterateFile { sections })
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn test_raw_section_get_header() {
+        let section = RawSection {
+            code: "fn main() {}".to_string(),
+            docs: "# Header\ntext".to_string(),
+        };
+        assert_eq!(section.get_header(), Some("# Header".to_string()));
+
+        let section = RawSection {
+            code: "".to_string(),
+            docs: "Not header\ntext".to_string(),
+        };
+        assert_eq!(section.get_header(), None);
+
+        let section = RawSection {
+            code: "".to_string(),
+            docs: "".to_string(),
+        };
+        assert_eq!(section.get_header(), None);
+
+        let section = RawSection {
+            code: "".to_string(),
+            docs: "## Multiple hashes ##".to_string(),
+        };
+        assert_eq!(section.get_header(), Some("## Multiple hashes ##".to_string()));
+    }
+
+    #[test]
+    fn test_raw_section_get_references() {
+        let section = RawSection {
+            code: "".to_string(),
+            docs: "See [link](#header)".to_string(),
+        };
+        let refs = section.get_references();
+        assert_eq!(refs.len(), 1);
+        assert_eq!(refs[0].path, Path::new(""));
+        assert_eq!(refs[0].header, "header");
+
+        let section = RawSection {
+            code: "".to_string(),
+            docs: "See [link](file#header)".to_string(),
+        };
+        let refs = section.get_references();
+        assert_eq!(refs.len(), 1);
+        assert_eq!(refs[0].path, Path::new("file"));
+        assert_eq!(refs[0].header, "header");
+
+        let section = RawSection {
+            code: "".to_string(),
+            docs: "Multiple refs: [one](#header1) and [two](other#header2)".to_string(),
+        };
+        let refs = section.get_references();
+        assert_eq!(refs.len(), 2);
+        assert_eq!(refs[0].path, Path::new(""));
+        assert_eq!(refs[0].header, "header1");
+        assert_eq!(refs[1].path, Path::new("other"));
+        assert_eq!(refs[1].header, "header2");
+
+        let section = RawSection {
+            code: "".to_string(),
+            docs: "No refs here".to_string(),
+        };
+        let refs = section.get_references();
+        assert_eq!(refs.len(), 0);
+    }
+
+    #[test]
+    fn test_section_get_header() {
+        let section = Section {
+            code: "".to_string(),
+            docs: "".to_string(),
+            header: Some("# Main Header #".to_string()),
+            references: vec![],
+        };
+        assert_eq!(section.get_header(), Some("Main-Header".to_string()));
+
+        let section = Section {
+            code: "".to_string(),
+            docs: "".to_string(),
+            header: Some("## Complex Header: With Symbols!".to_string()),
+            references: vec![],
+        };
+        assert_eq!(section.get_header(), Some("Complex-Header:-With-Symbols!".to_string()));
+
+        let section = Section {
+            code: "".to_string(),
+            docs: "".to_string(),
+            header: None,
+            references: vec![],
+        };
+        assert_eq!(section.get_header(), None);
+    }
+
+    #[test]
+    fn test_literate_file_new() {
+        let content = r#"
+sections:
+  - code: |
+        fn hello() {}
+    docs: |
+        # Hello Function
+        This function says hello.
+  - code: |
+        fn world() {}
+    docs: |
+        ## World Function ##
+        This function says world.
+"#;
+        let result = LiterateFile::new(content);
+        assert!(result.is_ok());
+        let lit_file = result.unwrap();
+        assert_eq!(lit_file.sections.len(), 2);
+        assert_eq!(lit_file.sections[0].header, Some("# Hello Function".to_string()));
+        assert_eq!(lit_file.sections[1].header, Some("## World Function ##".to_string()));
+    }
+
+    #[test]
+    fn test_literate_file_duplicate_headers() {
+        let content = r#"
+sections:
+  - code: |
+        fn hello() {}
+    docs: |
+        # Duplicate Header
+        This function says hello.
+  - code: |
+        fn world() {}
+    docs: |
+        # Duplicate Header
+        This function says world.
+"#;
+        let result = LiterateFile::new(content);
+        assert!(result.is_err());
+        match result {
+            Err(LPError::DuplicateHeader(header)) => {
+                assert_eq!(header, "Duplicate-Header");
+            }
+            _ => panic!("Expected DuplicateHeader error"),
+        }
+    }
+
+    #[test]
+    fn test_literate_file_with_references() {
+        let content = r#"
+sections:
+  - code: |
+        fn main() {}
+    docs: |
+        # Main
+        See [other section](#other)
+  - code: |
+        fn other() {}
+    docs: |
+        # Other
+        This is another section.
+"#;
+        let result = LiterateFile::new(content);
+        assert!(result.is_ok());
+        let lit_file = result.unwrap();
+        assert_eq!(lit_file.sections[0].references.len(), 1);
+        assert_eq!(lit_file.sections[0].references[0].path, Path::new(""));
+        assert_eq!(lit_file.sections[0].references[0].header, "other");
     }
 }

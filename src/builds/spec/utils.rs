@@ -113,5 +113,6 @@ mod tests {
         assert_eq!(header_to_anchor("Introduction"), "Introduction");
         assert_eq!(header_to_anchor("Getting Started"), "Getting-Started");
         assert_eq!(header_to_anchor("  Multiple   Spaces  "), "Multiple---Spaces");
+        assert_eq!(header_to_anchor("hyphens-and!other signs?"), "hyphens-and!other-signs?");
     }
 }
