@@ -130,10 +130,7 @@ impl CodeBuilder {
 
     fn prepare_final_code(&self, module: Rc<Module>) -> Result<String, LPError> {
         let no_imports_code = self.get_all_code(module.clone());
-        let imports = match self.get_all_imports(module.clone()) {
-            Ok(imports) => imports,
-            Err(e) => return Err(e),
-        };
+        let imports = self.get_all_imports(module.clone())?;
         self.plugins_caller.call_plugin_cleaning_func(
             get_module_extension(&module.path).as_str(),
             &format!("{}\n{}", imports, no_imports_code),

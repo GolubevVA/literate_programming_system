@@ -35,10 +35,7 @@ impl Module {
             }
         };
 
-        let literate_file = match LiterateFile::new(&content) {
-            Ok(lf) => lf,
-            Err(e) => return Err(e),
-        };
+        let literate_file = LiterateFile::new(&content)?;
 
         Ok(Module {
             sections: Some(literate_file.sections.into_iter().map(Rc::new).collect()),

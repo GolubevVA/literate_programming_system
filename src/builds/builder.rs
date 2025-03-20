@@ -28,10 +28,7 @@ impl Builder {
     /// # Returns
     /// Returns either a Builder instance or an LPError.
     pub fn new(config: Config, lua: Rc<Lua>) -> Result<Self, LPError> {
-        let project = match Project::new(&config.source_dir) {
-            Ok(project) => project,
-            Err(e) => return Err(e),
-        };
+        let project = Project::new(&config.source_dir)?;
         let shared_project = Rc::new(project);
         let index = ProjectIndex::new(shared_project.clone());
         let code_builder = CodeBuilder::new(

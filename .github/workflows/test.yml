@@ -48,7 +48,8 @@ jobs:
       run: cargo test --verbose
 
     - name: Run Clippy
-      run: cargo clippy --all-targets --all-features # warning off, as I do not agree with some of the clippy suggestions
+      # warnings off, as I do not agree with some of the clippy suggestions
+      run: cargo clippy --all-targets --all-features -- -A warnings
 
     - name: Check Formatting
       run: cargo fmt -- --check
