@@ -30,7 +30,7 @@ fn main() -> Result<(), LPError> {
 
     let lua = Rc::new(mlua::Lua::new());
 
-    let builder = match Builder::new(config, lua.clone()) {
+    let builder = match Builder::new(config, Rc::clone(&lua)) {
         Ok(builder) => builder,
         Err(e) => {
             eprintln!("{}", e);

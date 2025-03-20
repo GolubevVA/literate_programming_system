@@ -7,7 +7,7 @@ use path_clean::clean;
 
 use crate::{config::constants::SYSTEM_FILES_EXTENSION, error::LPError};
 
-use super::utils::clean_path;
+use super::utils::{clean_path, module_name};
 use super::{sections::LiterateFile, structs::Module};
 
 impl Module {
@@ -46,10 +46,12 @@ impl Module {
     /// Returns the path to the module which can be referred as a `path` from the current module
     ///
     /// E.g. if module.path is `dir/a.py.lpnb` and `path` is `../b.py.lpnb`, the result will be `b.py.lpnb`
+    /// 
+    /// In case of empty `path` argument, returns the module's name (not it's path!)
     pub fn resolve_relative_module_path(&self, path: &Path) -> PathBuf {
         let mut combined = self.path.clone();
         if path.to_str() == Some("") {
-            return combined;
+            return module_name(&combined);
         }
         combined.pop();
         combined.push(path);
@@ -162,7 +164,7 @@ sections:
 
         let relative = Path::new("");
         let resolved = module.resolve_relative_module_path(relative);
-        assert_eq!(resolved, module.path);
+        assert_eq!(resolved, PathBuf::from("dir/module"));
     }
 
     #[test]

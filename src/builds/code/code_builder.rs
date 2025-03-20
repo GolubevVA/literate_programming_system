@@ -57,7 +57,7 @@ impl CodeBuilder {
                     .is_none()
                 {
                     return Err(LPError::IncorrectReference(
-                        reference.path.clone(),
+                        referenced_module_path,
                         reference.header.clone(),
                     ));
                 }
