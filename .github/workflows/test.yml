@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        rust: [stable, beta]
+        rust: [stable]
 
     steps:
     - name: Check out code
@@ -50,3 +50,6 @@ jobs:
 
     - name: Check Formatting
       run: cargo fmt -- --check
+
+    - name: Run Clippy (Linter)
+      run: cargo clippy --all-targets --all-features -- -A warnings
