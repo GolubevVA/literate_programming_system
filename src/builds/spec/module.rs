@@ -46,7 +46,7 @@ impl Module {
     /// Returns the path to the module which can be referred as a `path` from the current module
     ///
     /// E.g. if module.path is `dir/a.py.lpnb` and `path` is `../b.py.lpnb`, the result will be `b.py.lpnb`
-    /// 
+    ///
     /// In case of empty `path` argument, returns the module's name (not it's path!)
     pub fn resolve_relative_module_path(&self, path: &Path) -> PathBuf {
         let mut combined = self.path.clone();
