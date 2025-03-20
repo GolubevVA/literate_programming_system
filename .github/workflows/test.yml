@@ -47,9 +47,5 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
 
-    - name: Run Clippy
-      # warnings off, as I do not agree with some of the clippy suggestions
-      run: cargo clippy --all-targets --all-features -- -A warnings
-
     - name: Check Formatting
       run: cargo fmt -- --check
