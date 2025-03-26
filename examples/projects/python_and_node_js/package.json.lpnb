@@ -1,0 +1,13 @@
+metadata:
+  language: json
+sections:
+  - docs: ''
+    code: |-
+      {
+          "name": "hybrid-node-python",
+          "version": "1.0.0",
+          "main": "app.js",
+          "scripts": {
+              "start": "node app.js"
+          }
+      }

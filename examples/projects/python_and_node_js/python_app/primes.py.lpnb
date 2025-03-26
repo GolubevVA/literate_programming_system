@@ -1,0 +1,27 @@
+metadata:
+  language: python
+sections:
+  - docs: '# Prime Test'
+    code: |-
+      def is_prime(n):
+          if n == 0:
+              return False
+          if n <= 1:
+              return False
+          if n == 2:
+              return True
+          i = 2
+          while i*i <= n:
+              if n % i == 0:
+                  return False
+              i += 1
+          return True
+  - docs: делаем функцию вызываемой извне
+    code: |-
+      if __name__ == "__main__":
+          import sys
+          num = int(sys.argv[1])
+          if is_prime(num):
+              print(f"prime")
+          else:
+              print(f"not prime")

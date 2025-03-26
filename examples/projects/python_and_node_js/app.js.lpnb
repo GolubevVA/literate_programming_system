@@ -1,0 +1,16 @@
+metadata:
+  language: javascript
+sections:
+  - docs: Отсюда вызываем [проверку на простоту](./python_call#Вызов-питона)
+    code: |-
+      async function main() {
+          const numToCheck = 13;
+          try {
+              const result = await checkPrime(numToCheck);
+              console.log("Result from Python:", result);
+          } catch (err) {
+              console.error("Error running Python script:", err);
+          }
+      }
+  - docs: ''
+    code: main();
