@@ -53,10 +53,11 @@ pub fn clean_path(source_dir: &Path, path: &Path) -> PathBuf {
 /// 1. Trim whitespace
 /// 2. Replace spaces with hyphens
 ///
-/// E.g.: "My Header" -> "my-header"
+/// E.g.: "My Header" -> "My-Header"
 pub fn header_to_anchor(header: &str) -> String {
     header.trim().replace(' ', "-")
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
