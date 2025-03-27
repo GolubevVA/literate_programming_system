@@ -55,8 +55,12 @@ impl Builder {
 
     fn init(&self) -> Result<(), LPError> {
         if self.config.force {
-            std::fs::remove_dir_all(&self.config.docs_dir)?;
-            std::fs::remove_dir_all(&self.config.code_dir)?;
+            if std::fs::metadata(&self.config.docs_dir).is_ok() {
+                std::fs::remove_dir_all(&self.config.docs_dir)?;
+            }
+            if std::fs::metadata(&self.config.code_dir).is_ok() {
+                std::fs::remove_dir_all(&self.config.code_dir)?;
+            }
         }
 
         std::fs::create_dir_all(&self.config.docs_dir)?;
