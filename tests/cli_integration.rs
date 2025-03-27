@@ -23,7 +23,7 @@ fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> std::io::Result
 
 fn create_test_files(target_dir: &Path) -> Vec<PathBuf> {
     let test_file_content = "This file should not be affected without force flag";
-    
+
     let docs_dir = target_dir.join("docs");
     fs::create_dir_all(&docs_dir).unwrap();
     let docs_file = docs_dir.join("this_name_wont_appear_in_build.txt");
@@ -33,7 +33,7 @@ fn create_test_files(target_dir: &Path) -> Vec<PathBuf> {
     fs::create_dir_all(&code_dir).unwrap();
     let code_file = code_dir.join("this_name_wont_appear_in_build.txt");
     fs::write(&code_file, test_file_content).unwrap();
-    
+
     vec![docs_file, code_file]
 }
 
@@ -43,14 +43,14 @@ fn check_files_exist(files: &[PathBuf], expected_content: &str) -> bool {
             eprintln!("File does not exist: {:?}", file);
             return false;
         }
-        
+
         match fs::read_to_string(file) {
             Ok(content) => {
                 if content != expected_content {
                     eprintln!("File content mismatch for {:?}", file);
                     return false;
                 }
-            },
+            }
             Err(e) => {
                 eprintln!("Failed to read file {:?}: {}", file, e);
                 return false;
@@ -64,7 +64,13 @@ fn check_files_dont_exist(files: &[PathBuf]) -> bool {
     files.iter().all(|file| !file.exists())
 }
 
-fn run_lp_command(project_name: &str, use_force_flag: bool, tmp_root: &TempDir, test_with_messed_dirs: bool, with_plugins: bool) -> bool {
+fn run_lp_command(
+    project_name: &str,
+    use_force_flag: bool,
+    tmp_root: &TempDir,
+    test_with_messed_dirs: bool,
+    with_plugins: bool,
+) -> bool {
     let projects_dir = tmp_root.path().join("projects");
     fs::create_dir_all(&projects_dir).unwrap();
 
