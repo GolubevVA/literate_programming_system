@@ -25,6 +25,14 @@ pub struct CodeBuilder {
     index: Rc<ProjectIndex>,
 }
 
+fn join_code_with_imports(code: String, imports: String) -> String {
+    if imports.is_empty() {
+        code
+    } else {
+        format!("{}\n{}", imports, code)
+    }
+}
+
 impl CodeBuilder {
     /// Creates a new CodeBuilder instance.
     /// # Arguments
@@ -133,7 +141,7 @@ impl CodeBuilder {
         let imports = self.get_all_imports(module.clone())?;
         self.plugins_caller.call_plugin_cleaning_func(
             get_module_extension(&module.path).as_str(),
-            &format!("{}\n{}", imports, no_imports_code),
+            &join_code_with_imports(no_imports_code, imports),
         )
     }
 
@@ -172,6 +180,25 @@ mod tests {
     use super::*;
     use crate::builds::spec::structs::Section;
     use crate::config::constants::SYSTEM_FILES_EXTENSION;
+
+    #[test]
+    fn test_join_code_with_imports() {
+        let code = "fn hello() {}".to_string();
+        let imports = "use std::io".to_string();
+
+        let result = join_code_with_imports(code, imports);
+        let expected = "use std::io\nfn hello() {}";
+
+        assert_eq!(result, expected);
+
+        let code = "fn hello() {}".to_string();
+        let imports = "".to_string();
+
+        let result = join_code_with_imports(code, imports);
+        let expected = "fn hello() {}";
+
+        assert_eq!(result, expected);
+    }
 
     #[test]
     fn test_prepare_target_path() {

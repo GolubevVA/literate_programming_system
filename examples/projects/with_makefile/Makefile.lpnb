@@ -1,0 +1,8 @@
+metadata:
+  language: makefile
+sections:
+  - docs: |-
+      # файл сборки для main.c
+
+      Это покажет, как можно документировать файлы без расширений.
+    code: "CC = gcc\nCFLAGS = -Wall -Wextra -O2\nTARGET = main\n\nall: $(TARGET)\n\n$(TARGET): main.c\n\t$(CC) $(CFLAGS) -o $(TARGET) main.c\n\nclean:\n\trm -f $(TARGET)"
