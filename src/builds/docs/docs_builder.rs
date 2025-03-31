@@ -27,11 +27,16 @@ impl DocsBuilder {
         Self { config, project }
     }
 
-    /// returns target path and an original extension, "" if no extension
+    /// returns target path and an original extension, file's name if no extension
     fn prepare_target_path(&self, path: &PathBuf) -> (PathBuf, String) {
         let mut result = self.config.target_docs_dir.clone();
         result.push(path);
         let cleaned_res = utils::prepare_module_file_extension(&result);
+        let file_name = cleaned_res
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string();
         let extension = cleaned_res
             .extension()
             .unwrap_or(std::ffi::OsStr::new(""))
@@ -39,7 +44,11 @@ impl DocsBuilder {
             .unwrap_or("")
             .to_string();
         if cleaned_res != result {
-            (cleaned_res.with_extension("md"), extension)
+            if extension.is_empty() {
+                (cleaned_res.with_extension("md"), file_name)
+            } else {
+                (cleaned_res.with_extension("md"), extension)
+            }
         } else {
             (cleaned_res, extension)
         }
@@ -81,6 +90,7 @@ impl DocsBuilder {
         Ok(())
     }
 }
+
 #[cfg(test)]
 mod tests {
     use crate::config::constants::SYSTEM_FILES_EXTENSION;
@@ -106,11 +116,11 @@ mod tests {
         let project = Rc::new(Project { modules: vec![] });
         let builder = DocsBuilder::new(config, project);
 
-        let path = PathBuf::from("README");
+        let path = PathBuf::from(format!("Makefile.{}", SYSTEM_FILES_EXTENSION));
         let (target_path, extension) = builder.prepare_target_path(&path);
 
-        assert_eq!(target_path, PathBuf::from("/target/README"));
-        assert_eq!(extension, "");
+        assert_eq!(target_path, PathBuf::from("/target/Makefile.md"));
+        assert_eq!(extension, "Makefile");
     }
 
     #[test]
